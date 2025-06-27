@@ -26,7 +26,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     
     @Autowired
-    private final DataSource datasource;  //injects the datasource for jdbc
+    private final DataSource datasource = null;  //injects the datasource for jdbc
     
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -51,3 +51,4 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authoritiesByUsernameQuery("SELECT email, role FROM students WHERE email = ?"); // SQL query to fetch user role
     }
 }
+  
