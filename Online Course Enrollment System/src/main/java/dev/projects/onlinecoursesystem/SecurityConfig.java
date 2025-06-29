@@ -23,32 +23,8 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+public class SecurityConfig {
     
-    @Autowired
-    private final DataSource datasource = null;  //injects the datasource for jdbc
-    
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        http
-                .authorizeRequests()   // This is where we define the access control rules for different paths
-                    .antMatchers("/register", "/login").permitAll()    // Allow public access to registration and login
-                    .antMatchers("/courses/**").hasAnyRole("STUDENT", "ADMIN")  // Students and Admin can view courses
-                    .antMatchers("/admin/**").hasRole("ADMIN") // Only Admin can access admin paths
-                    .anyRequest().authenticated()  // Any other path requires authentication
-                .and()
-                .formLogin().permitAll() // Enable login page for all users
-                .and()
-                .logout().permitAll(); // Allow users to log out
-    }
-    
-    
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.jdbcAuthentication()
-                .dataSource(datasource)
-                .usersByUsernameQuery("SELECT email, password, role FROM students WHERE email = ?") // SQL query to fetch user credentials
-                .authoritiesByUsernameQuery("SELECT email, role FROM students WHERE email = ?"); // SQL query to fetch user role
-    }
+
 }
   

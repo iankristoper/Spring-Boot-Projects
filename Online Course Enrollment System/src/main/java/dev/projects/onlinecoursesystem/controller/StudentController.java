@@ -17,7 +17,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class StudentController {
     
     @GetMapping("/hello")
-    public String testing() {
-        return "Hello";
+    public String publicFolder() {
+        return "Hello from devIan";
+    }
+    
+    @GetMapping("/hi")
+    public String privateFolder() {
+        return "This should be private...hmmm.";
     }
 }
