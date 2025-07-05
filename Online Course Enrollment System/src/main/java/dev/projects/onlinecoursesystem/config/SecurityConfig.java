@@ -30,36 +30,35 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 @Configuration
 public class SecurityConfig {
     
-    @Bean
+    @Bean 
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         
-        http
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/hello").permitAll()
-                .anyRequest().authenticated()
-            )
+        http.authorizeHttpRequests(auth -> auth
+                .requestMatchers("/testing").permitAll()
+                .anyRequest().authenticated())
+                
             .formLogin(Customizer.withDefaults())
             .logout(Customizer.withDefaults());
-
-        return http.build();
+        
+        return http.build();            
     }
     
     
-    @Bean
+    @Bean 
     public UserDetailsService userDetailsService() {
         
-        //create user with username and password 
-        UserDetails user = User.withUsername("Ian")
-                .password(passwordEncoder().encode("testing"))
-                .roles("USER")
-                .build();
+        UserDetails user = User.withUsername("Ian").password(passwordEncoder().encode("hello")).roles("USER").build();
         
         return new InMemoryUserDetailsManager(user);
     }
     
     
-    @Bean 
+    @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+    
+
 }
+
+

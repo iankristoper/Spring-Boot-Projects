@@ -13,8 +13,8 @@ package dev.projects.onlinecoursesystem.model;
 public class Student {
     
     private int id;
-    private String fname;
-    private String lname;
+    private String firstname;
+    private String lastname;
     private String email;
     private String password;
     private String role;
@@ -27,10 +27,10 @@ public class Student {
     
     
     //
-    public Student(int id, String fname, String lname, String email, String password, String role) {
+    public Student(int id, String firstname, String lastname, String email, String password, String role) {
         this.id = id;
-        this.fname = fname;
-        this.lname = lname;
+        this.firstname = firstname;
+        this.lastname = lastname;
         this.email = email;
         this.password = password;
         this.role = role;
@@ -49,20 +49,20 @@ public class Student {
     
     
     public String getFirstName() {
-        return fname;
+        return firstname;
     }
     
-    public void setFirstName(String fname) {
-        this.fname = fname;
+    public void setFirstName(String firstname) {
+        this.firstname = firstname;
     }
     
     
     public String getLastName() {
-        return lname;
+        return lastname;
     }
     
-    public void setLastName(String lname) {
-        this.lname = lname;
+    public void setLastName(String lastname) {
+        this.lastname = lastname;
     }
     
     
