@@ -29,3 +29,33 @@
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
+
+
+    @Bean 
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        
+        http.authorizeHttpRequests(auth -> auth
+                .requestMatchers("/testing").permitAll()
+                .anyRequest().authenticated())
+                
+            .formLogin(Customizer.withDefaults())
+            .logout(Customizer.withDefaults());
+        
+        return http.build();            
+    }
+    
+    
+    @Bean 
+    public UserDetailsService userDetailsService() {
+        
+        UserDetails user = User.withUsername("Ian").password(passwordEncoder().encode("hello")).roles("USER").build();
+        
+        return new InMemoryUserDetailsManager(user);
+    }
+    
+    
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
