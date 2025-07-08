@@ -1,11 +1,12 @@
 
-package dev.projects.onlinecoursesystem.dto;
+package dev.projects.onlinecoursesystem.model;
 
 
 
 
 
-public class StudentDTO {
+
+public class Admin {
     
     private String firstName;
     private String lastName;
@@ -15,40 +16,35 @@ public class StudentDTO {
     
     
     //getters and setters
-    public String getFirstName() {
-        return firstName;
-    }
     
     public void setFirstName(String firstName) {
         this.firstName = firstName;
     }
     
-    
-    public String getLastName() {
-        return lastName;
+    public String getFirstName() {
+        return firstName;
     }
+    
+    
     
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }
     
-    
-    public String getEmail() {
-        return email;
+    public String getLastName() {
+        return lastName;
     }
+    
+    
     
     public void setEmail(String email) {
         this.email = email;
     }
     
-    
-    public String getRole() {
-        return role;
+    public String getEmail() {
+        return email;
     }
     
-    public void setRole(String role) {
-        this.role = role;
-    }
     
     
     public void setPassword(String password) {
@@ -58,4 +54,32 @@ public class StudentDTO {
     public String getPassword() {
         return password;
     }
+    
+    
+    
+    public void setRole(String role) {
+        this.role = role;
+    }
+     
+    public String getRole() {
+        return role;
+    }
+    
+    
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

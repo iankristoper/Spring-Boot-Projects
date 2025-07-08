@@ -27,11 +27,11 @@ public class StudentService {
     
     
     //controller to model -> db
-    public Student convertToModel(StudentDTO dto) {
+    public Student convertStudentDataToModel(StudentDTO dto) {
         
         Student student = new Student();
         
-        student.setFirstName(dto.getFistName());
+        student.setFirstName(dto.getFirstName());
         student.setLastName(dto.getLastName());
         student.setEmail(dto.getEmail());
         student.setPassword(passwordEncoder.encode(dto.getPassword()));

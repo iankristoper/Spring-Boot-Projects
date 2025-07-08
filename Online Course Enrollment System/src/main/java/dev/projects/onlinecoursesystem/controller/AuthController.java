@@ -5,9 +5,13 @@ package dev.projects.onlinecoursesystem.controller;
 
 
 
+import dev.projects.onlinecoursesystem.dto.AdminDTO;
 import dev.projects.onlinecoursesystem.dto.StudentDTO;
+import dev.projects.onlinecoursesystem.model.Admin;
 import dev.projects.onlinecoursesystem.repository.StudentRepository;
 import dev.projects.onlinecoursesystem.model.Student;
+import dev.projects.onlinecoursesystem.repository.AdminRepository;
+import dev.projects.onlinecoursesystem.service.AdminService;
 import dev.projects.onlinecoursesystem.service.StudentService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,14 +34,22 @@ public class AuthController {
     @Autowired 
     private StudentRepository studentRepository;
     
+    @Autowired
+    private AdminService adminService;
     
-    //
-    @PostMapping("/Register")
-    public ResponseEntity<String> register(@RequestBody StudentDTO studentDTO) {
-        
+    @Autowired
+    private AdminRepository adminRepository;
+    
+    
+    
+    
+    //for students 
+    @PostMapping("/register/student")
+    public ResponseEntity<String> registerStudent(@RequestBody StudentDTO studentDTO) {
+                       
         //convert DTO to model and encode password 
-        Student student = studentService.convertToModel(studentDTO);
-        
+        Student student = studentService.convertStudentDataToModel(studentDTO);
+                
         //save to DB
         studentRepository.registerStudent(student);
         
@@ -46,7 +58,18 @@ public class AuthController {
     
     
     
+    //for admin
+    @PostMapping("/register/admin")
+    public ResponseEntity<String> registerAdmin(@RequestBody AdminDTO adminDTO) {
+        
+        //convert DTO to model and encode the password
+        Admin admin = adminService.convertAdminDataToModel(adminDTO);
+        
+        //save to DB
+        adminRepository.registerAdmin(admin);
+        
+        return ResponseEntity.ok("Admin registered successfully");
+    }
     
-
-    
+  
 }

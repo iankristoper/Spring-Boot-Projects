@@ -59,3 +59,84 @@
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
+
+
+
+    //controller to model -> db
+    public Student convertToModel(StudentDTO dto) {
+        
+        Student student = new Student();
+        
+        student.setFirstName(dto.getFirstName());
+        student.setLastName(dto.getLastName());
+        student.setEmail(dto.getEmail());
+        student.setPassword(passwordEncoder.encode(dto.getPassword()));
+        student.setRole("ROLE_STUDENT");
+        
+        return student;
+    }
+
+
+@EnableWebSecurity
+@Configuration
+public class SecurityConfig {
+    
+    @Autowired
+    private DataSource datasource;
+    
+    @Bean 
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        
+        http
+                .csrf(csrf -> csrf.disable()) // ✅ new preferred style
+                .authorizeHttpRequests(auth -> auth
+                    .requestMatchers("/auth/**", "/testing").permitAll()
+                    .anyRequest().authenticated()
+                )
+                
+            .formLogin(Customizer.withDefaults())
+            .logout(Customizer.withDefaults());
+        
+        return http.build();            
+    }
+    
+    
+    @Bean 
+    public UserDetailsService userDetailsService() {
+        
+        JdbcUserDetailsManager userDetailsManager = new JdbcUserDetailsManager(datasource);
+        
+        
+        //tell it how to query the students table for user and roles
+        String query1 = "SELECT email AS username, password, true AS enabled FROM students WHERE email = ?";
+        userDetailsManager.setUsersByUsernameQuery(query1);
+        
+        String query2 = "SELECT email AS username, role AS authority FROM students WHERE email = ?";
+        userDetailsManager.setAuthoritiesByUsernameQuery(query2);
+        
+        
+        return userDetailsManager;
+    }
+    
+    
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+    
+
+}
+
+
+
+
+
+
+
+// 🔍 Debug print: Confirm incoming data from Postman
+        System.out.println("🎯 First name = " + studentDTO.getFirstName());
+        System.out.println("🎯 Last name = " + studentDTO.getLastName());
+        System.out.println("🎯 Email = " + studentDTO.getEmail());
+        System.out.println("🎯 Password = " + studentDTO.getPassword());
+        System.out.println("🎯 Role = " + studentDTO.getRole());
