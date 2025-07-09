@@ -3,6 +3,7 @@ package dev.projects.onlinecoursesystem.service;
 
 import dev.projects.onlinecoursesystem.dto.AdminDTO;
 import dev.projects.onlinecoursesystem.model.Admin;
+import org.springframework.stereotype.Service;
 
 
 
@@ -11,7 +12,7 @@ import dev.projects.onlinecoursesystem.model.Admin;
 
 
 
-
+@Service
 public class AdminService {
     
     //convert from controller to model unto db

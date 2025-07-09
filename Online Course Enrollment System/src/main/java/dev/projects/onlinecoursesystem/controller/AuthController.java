@@ -62,6 +62,11 @@ public class AuthController {
     @PostMapping("/register/admin")
     public ResponseEntity<String> registerAdmin(@RequestBody AdminDTO adminDTO) {
         
+        System.out.println("firstname: " + adminDTO.getFirstName());
+        System.out.println("lastname: " + adminDTO.getlastName());
+        System.out.println("email" + adminDTO.getEmail());
+        System.out.println("password" + adminDTO.getPassword());
+        
         //convert DTO to model and encode the password
         Admin admin = adminService.convertAdminDataToModel(adminDTO);
         
