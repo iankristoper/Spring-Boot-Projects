@@ -1,13 +1,12 @@
 
-package dev.projects.onlinecoursesystem.model;
+package dev.projects.onlinecoursesystem.dto;
 
 
 
 
 
 
-
-public class Course {
+public class CourseDTO {
     
     private int id;
     private String courseCode;
@@ -19,16 +18,7 @@ public class Course {
     
     //getters and setters 
     
-    public void setId(int id) {
-        this.id = id;
-    }
-    
-    public int getId() {
-        return id;
-    }
-    
-    
-    
+  
     public void setCourseCode(String courseCode) {
         this.courseCode = courseCode;
     }
@@ -76,7 +66,4 @@ public class Course {
     public String getInstructor() {
         return instructor;
     }
-    
-    
-    
 }

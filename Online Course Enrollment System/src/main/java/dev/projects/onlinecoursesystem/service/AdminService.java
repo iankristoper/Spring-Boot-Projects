@@ -1,8 +1,15 @@
 
 package dev.projects.onlinecoursesystem.service;
 
+
+
+
+
 import dev.projects.onlinecoursesystem.dto.AdminDTO;
+import dev.projects.onlinecoursesystem.dto.CourseDTO;
 import dev.projects.onlinecoursesystem.model.Admin;
+import dev.projects.onlinecoursesystem.model.Course;
+
 import org.springframework.stereotype.Service;
 
 
@@ -29,7 +36,28 @@ public class AdminService {
         return admin;
     }
                
-            
+    
+    
+    //admin functionalities 
+    
+    
+    
+    //convert course creation from controller to model unto db
+    public Course convertCourseToModel(CourseDTO courseDTO) {
+        
+        Course course = new Course();
+        
+        course.setCourseCode(courseDTO.getCourseCode());
+        course.setCourseName(courseDTO.getCourseName());
+        course.setStatus(courseDTO.getStatus());
+        course.setSlots(courseDTO.getSlots());
+        course.setInstructor(courseDTO.getInstructor());
+        
+        return course;
+    }
+    
+    
+    
     //convert from db to controller
     
 }

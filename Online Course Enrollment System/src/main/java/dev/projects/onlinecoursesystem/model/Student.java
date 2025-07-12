@@ -1,10 +1,7 @@
 
 package dev.projects.onlinecoursesystem.model;
 
-/**
- *
- * @author noob
- */
+
 
 
 
@@ -20,13 +17,13 @@ public class Student {
     private String role;
     
     
-    //
+    
     public Student() {
         
     }
     
     
-    //
+  
     public Student(int id, String firstname, String lastname, String email, String password, String role) {
         this.id = id;
         this.firstname = firstname;

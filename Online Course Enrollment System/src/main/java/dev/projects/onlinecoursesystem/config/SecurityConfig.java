@@ -36,13 +36,26 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         
         http
-                .csrf(csrf -> csrf.disable()) // ✅ new preferred style
+                .csrf(csrf -> csrf.disable()) // ✅ new preferred style - disable this is for testing purpsoes only
                 .authorizeHttpRequests(auth -> auth
-                    .requestMatchers("/auth/**", "/testing").permitAll()
+                    .requestMatchers("/auth/**").permitAll()
+                    
+                    //student only endpoints
+                    .requestMatchers("/student/**", "/enrollment/**").hasRole("STUDENT")
+                        
+                    //admin only endpoints
+                    .requestMatchers("/admin/**").hasRole("ADMIN")
+                        
+                    //any request that 
                     .anyRequest().authenticated()
                 )
                 
-            .formLogin(Customizer.withDefaults())
+            .formLogin(form -> form
+                .loginPage("/login") // Optional: if you have a custom login page
+                .defaultSuccessUrl("/hi", true) // Redirect here after login
+                .permitAll()
+            )
+
             .logout(Customizer.withDefaults());
         
         return http.build();            
