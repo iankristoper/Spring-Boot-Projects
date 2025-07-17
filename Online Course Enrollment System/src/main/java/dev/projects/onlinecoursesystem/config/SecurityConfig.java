@@ -17,6 +17,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.provisioning.JdbcUserDetailsManager;
 
 
 
@@ -29,12 +31,7 @@ public class SecurityConfig {
     
     @Autowired
     private DataSource datasource;
-    
-    private final CustomUserDetailsService userDetailsService;
-    
-    public SecurityConfig(CustomUserDetailsService userDetailsService) {
-        this.userDetailsService = userDetailsService;
-    }
+   
     
     
     @Bean 
@@ -63,7 +60,55 @@ public class SecurityConfig {
 
             .logout(Customizer.withDefaults());
         
-        return http.build();            
+        return http.build();  
+        
+    }
+    
+        @Bean 
+
+
+    public UserDetailsService userDetailsService() {
+
+
+        
+
+
+        JdbcUserDetailsManager userDetailsManager = new JdbcUserDetailsManager(datasource);
+
+
+        
+
+
+        
+
+
+        //tell it how to query the students table for user and roles
+
+
+        String query1 = "SELECT email AS username, password, true AS enabled FROM students WHERE email = ?";
+
+
+        userDetailsManager.setUsersByUsernameQuery(query1);
+
+
+        
+
+
+        String query2 = "SELECT email AS username, role AS authority FROM students WHERE email = ?";
+
+
+        userDetailsManager.setAuthoritiesByUsernameQuery(query2);
+
+
+        
+
+
+        
+
+
+        return userDetailsManager;
+
+
     }
        
     @Bean
