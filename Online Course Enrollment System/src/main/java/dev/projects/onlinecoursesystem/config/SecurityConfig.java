@@ -69,42 +69,14 @@ public class SecurityConfig {
 
     public UserDetailsService userDetailsService() {
 
-
-        
-
-
         JdbcUserDetailsManager userDetailsManager = new JdbcUserDetailsManager(datasource);
-
-
         
-
-
-        
-
-
         //tell it how to query the students table for user and roles
-
-
         String query1 = "SELECT email AS username, password, true AS enabled FROM students WHERE email = ?";
-
-
         userDetailsManager.setUsersByUsernameQuery(query1);
 
-
-        
-
-
         String query2 = "SELECT email AS username, role AS authority FROM students WHERE email = ?";
-
-
         userDetailsManager.setAuthoritiesByUsernameQuery(query2);
-
-
-        
-
-
-        
-
 
         return userDetailsManager;
 
