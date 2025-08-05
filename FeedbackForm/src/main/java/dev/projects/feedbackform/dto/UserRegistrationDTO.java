@@ -1,7 +1,6 @@
 
 package dev.projects.feedbackform.dto;
 
-import dev.projects.feedbackform.model.User;
 
 
 
