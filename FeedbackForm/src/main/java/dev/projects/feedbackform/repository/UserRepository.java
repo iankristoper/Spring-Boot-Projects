@@ -1,13 +1,46 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
+
 package dev.projects.feedbackform.repository;
 
-/**
- *
- * @author Ian Tagano
- */
+
+
+
+
+
+import dev.projects.feedbackform.model.User;
+import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
+
+
+
+
+
+
+
+
+
+
+
+@Repository
 public class UserRepository {
+    
+    private final JdbcTemplate jdbc;
+    
+    public UserRepository(JdbcTemplate jdbc) {
+        this.jdbc = jdbc;
+    }
+    
+    
+    //this is for registration 
+    public ResponseEntity<String> registerUser(User user) {
+        String sql = "INSERT INTO userRegistrations(username, password) VALUES(?,?)";
+        
+        jdbc.update(sql, user.getUsername(), user.getPassword());
+        
+        return ResponseEntity.ok("User registered successfully!");
+        
+    }
+    
     
 }
