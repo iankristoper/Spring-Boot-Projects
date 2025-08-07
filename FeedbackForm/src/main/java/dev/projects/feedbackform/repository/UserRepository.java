@@ -34,7 +34,7 @@ public class UserRepository {
     
     //this is for registration 
     public ResponseEntity<String> registerUser(User user) {
-        String sql = "INSERT INTO userRegistrations(username, password) VALUES(?,?)";
+        String sql = "INSERT INTO userregistrations(username, password) VALUES(?,?)";
         
         jdbc.update(sql, user.getUsername(), user.getPassword());
         

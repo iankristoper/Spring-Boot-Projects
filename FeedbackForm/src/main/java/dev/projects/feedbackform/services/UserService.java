@@ -4,6 +4,7 @@ package dev.projects.feedbackform.services;
 import dev.projects.feedbackform.dto.UserRegistrationDTO;
 import dev.projects.feedbackform.model.User;
 import dev.projects.feedbackform.repository.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
@@ -13,10 +14,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserService {
     
-    public final UserRepository userRepo;
+    private final UserRepository userRepo;
+    private final PasswordEncoder passwordEncoder;
     
-    public UserService(UserRepository userRepo) {
+    public UserService(UserRepository userRepo, PasswordEncoder passwordEncoder) {
         this.userRepo = userRepo;
+        this.passwordEncoder = passwordEncoder;
     }
     
     
@@ -24,9 +27,13 @@ public class UserService {
     public void registerUser(UserRegistrationDTO userRegDTO) {
         
         User user = new User();
+        
+        //convert the string password to cyrpted password
+        String rawPassword = userRegDTO.getPassword();
+        String encodedPassword = passwordEncoder.encode(rawPassword);
            
         user.setUsername(userRegDTO.getUsername());
-        user.setPassword(userRegDTO.getPassword());
+        user.setPassword(encodedPassword);
                
         userRepo.registerUser(user);
     }
