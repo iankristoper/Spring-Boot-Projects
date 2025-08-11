@@ -31,9 +31,11 @@ public class UserService {
         //convert the string password to cyrpted password
         String rawPassword = userRegDTO.getPassword();
         String encodedPassword = passwordEncoder.encode(rawPassword);
+        String roles = "USER";
            
         user.setUsername(userRegDTO.getUsername());
         user.setPassword(encodedPassword);
+        user.setRoles(roles);
                
         userRepo.registerUser(user);
     }

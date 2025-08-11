@@ -9,8 +9,7 @@ public class User {
     private int id;
     private String username;
     private String password;
-    private String feedback;
-    private int ratings;
+    private String roles;
     
     
     //getters and setters 
@@ -45,21 +44,11 @@ public class User {
     
     
     
-    public String getFeedback() {
-        return feedback;
+    public String getRoles() {
+        return roles;
     }
     
-    public void setFeedback(String feedback) {
-        this.feedback = feedback;
-    }
-    
-    
-    
-    public int getRatings() {
-        return ratings;
-    }
-    
-    public void setRatings(int ratings) {
-        this.ratings = ratings;
+    public void setRoles(String roles) {
+        this.roles = roles;
     }
 }

@@ -33,4 +33,9 @@ public class RegistrationController {
         
         return ResponseEntity.ok("Registration details has been passed on to db");
     }
+    
+    @GetMapping()
+    public String message() {
+        return "This should work!";
+    }
 }
