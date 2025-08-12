@@ -33,7 +33,7 @@ public class FeedbackService {
         feedback.setTitle(feedbackDTO.getTitle());
         feedback.setDescription(feedbackDTO.getDescription());
         feedback.setUsername(feedbackDTO.getUsername());
-        feedback.setEmail(feedback.getEmail());
+        feedback.setEmail(feedbackDTO.getEmail());
         feedback.setStatus(feedbackDTO.getStatus());
         
         feedbackRepo.saveFeedback(feedback);

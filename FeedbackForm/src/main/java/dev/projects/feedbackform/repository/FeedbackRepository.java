@@ -23,7 +23,7 @@ public class FeedbackRepository {
     //save data to the db
     public void saveFeedback(Feedback feedback) {
         
-        String sql = "INSERT INTO feedback(title, description, username, email, status) VALUES(?,?,?,?,?)";
+        String sql = "INSERT INTO feedbacks(title, description, username, email, status) VALUES(?,?,?,?,?)";
         
         
         jdbc.update(sql, feedback.getTitle(), feedback.getDescription(), feedback.getUsername(), feedback.getEmail(), feedback.getStatus());
