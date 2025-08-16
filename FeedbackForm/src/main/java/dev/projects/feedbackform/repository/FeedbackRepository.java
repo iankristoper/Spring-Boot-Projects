@@ -20,6 +20,7 @@ public class FeedbackRepository {
     }
     
     
+    
     //save data to the db
     public void saveFeedback(Feedback feedback) {
         
@@ -32,4 +33,22 @@ public class FeedbackRepository {
         System.out.println("Feedback data has been passed to DB");
         
     }
+    
+    
+    //update feedback status on db
+    public void updateFeebackStatus(int feedbackId, String status) {
+        
+        String sql = "UPDATE feedbacks SET status = ? WHERE id = ?";
+        
+        jdbc.update(sql, status, feedbackId);
+        
+        
+        System.out.println("Feedback status has been update to DB");        
+        
+    }
+    
+    
+    
+    
+    
 }

@@ -2,6 +2,7 @@
 package dev.projects.feedbackform.services;
 
 import dev.projects.feedbackform.dto.FeedbackDTO;
+import dev.projects.feedbackform.dto.FeedbackResponseDTO;
 import dev.projects.feedbackform.dto.FeedbackWithVotesDTO;
 import dev.projects.feedbackform.model.Feedback;
 import dev.projects.feedbackform.repository.AdminRepository;
@@ -33,13 +34,16 @@ public class FeedbackService {
     //this method will be used to controller level
     public void registerFeedback(FeedbackDTO feedbackDTO) {
         
+        
+        String status = "Pending";
+        
         Feedback feedback = new Feedback();
         
         feedback.setTitle(feedbackDTO.getTitle());
         feedback.setDescription(feedbackDTO.getDescription());
         feedback.setUsername(feedbackDTO.getUsername());
         feedback.setEmail(feedbackDTO.getEmail());
-        feedback.setStatus(feedbackDTO.getStatus());
+        feedback.setStatus(status);
         
         feedbackRepo.saveFeedback(feedback);
         
@@ -56,4 +60,24 @@ public class FeedbackService {
         return adminRepo.findAllWithVotes();
     }
     
+    
+    
+    //update feedback status from the admin 
+    public void updateFeedbackStatus(int feedbackId, String status) {
+        
+        feedbackRepo.updateFeebackStatus(feedbackId, status);
+        
+        System.out.println("Feedback status has been passed now to Controller");
+        
+    }
+    
+    
+    //reply feedback from the admin
+    public void replyFeedback(FeedbackResponseDTO feedbackRespose) {
+        
+        adminRepo.feedbackReponse(feedbackRespose);
+        
+        
+        System.out.println("Admin response has been passed to DB");
+    }
 }

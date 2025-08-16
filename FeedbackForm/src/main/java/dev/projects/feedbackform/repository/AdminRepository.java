@@ -1,6 +1,7 @@
 
 package dev.projects.feedbackform.repository;
 
+import dev.projects.feedbackform.dto.FeedbackResponseDTO;
 import dev.projects.feedbackform.dto.FeedbackWithVotesDTO;
 import java.util.List;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -57,6 +58,17 @@ public class AdminRepository {
         
         
         });
+        
+    }
+    
+    
+    
+    //response to the feedbacks 
+    public void feedbackReponse(FeedbackResponseDTO feedbackResponse) {
+        
+        String sql = "INSERT INTO admin_reponses(feedback_id, response) VALUES(?,?)";
+        
+        jdbc.update(sql, feedbackResponse.getFeedbackId(), feedbackResponse.getAdminReponse());
         
     }
 }

@@ -26,7 +26,7 @@ public class RegistrationController {
     }
     
     
-    @PostMapping()
+    @PostMapping("/user")
     public ResponseEntity<String> register(@RequestBody UserRegistrationDTO userRegDTO) {
         
         userService.registerUser(userRegDTO);
