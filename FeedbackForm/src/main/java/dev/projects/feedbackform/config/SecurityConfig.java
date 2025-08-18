@@ -32,7 +32,7 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/register").permitAll()
+                        .requestMatchers("/register/**").permitAll()
                         .requestMatchers("/login/user").permitAll()
                         .anyRequest().authenticated()
                 )
@@ -52,6 +52,9 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+    
+    
+    
     
     
     /* In using password encoder, the generated credentials will be invalid and became bad credentials. so you can implement your custmoer userdetails to have some login info */
