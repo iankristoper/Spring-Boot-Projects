@@ -7,7 +7,7 @@ package dev.practice.JwtTesting.config;
  */
 
 
-import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import java.security.Key;
 import java.util.Date;
@@ -42,5 +42,5 @@ public class JwtGenerator {
                 
         
     }
-    
+  
 }
