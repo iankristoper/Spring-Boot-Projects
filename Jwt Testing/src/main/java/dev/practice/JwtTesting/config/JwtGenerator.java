@@ -22,14 +22,11 @@ public class JwtGenerator {
     long oneHour = 1000L * 60 * 60;
     
     //secret key generator 
-    private final String key = "iamtheserveriamtheserveriamtheserver";
+    private final Key secretKey = Keys.hmacShaKeyFor("iamtheserveriamtheserveriamtheserver".getBytes());
     
     
     //build the jwt token 
     public String generateToken(String username, String role) {
-        
-        // convert String to Key for signing
-        Key secretKey = Keys.hmacShaKeyFor(key.getBytes());
         
         return Jwts.builder()
                 .setSubject(username)

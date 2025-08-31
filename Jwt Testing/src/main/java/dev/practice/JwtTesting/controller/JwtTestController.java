@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
-@RequestMapping("/testing/jwt")
+@RequestMapping
 public class JwtTestController {
     
     
@@ -26,8 +26,19 @@ public class JwtTestController {
     }
     
     
-    @GetMapping("/generate")
-    public String testGenerate() {
-        return jwtGenerate.generateToken("Ian", "Admin");
+    @GetMapping("/admin/test")
+    public String adminTest() {
+        return "This is for the admin";
     }
+    
+    
+    
+    
+    @GetMapping("/user/test")
+    public String userTest() {
+        return "This is for the user";
+    }
+    
+    
+    
 }

@@ -38,7 +38,7 @@ public class LoginRepository {
             
             user.setUsername(rs.getString("username"));
             user.setPassword(rs.getString("password"));
-            user.setRoles(rs.getString("roles"));
+            user.setRoles(rs.getString("role"));
             
             return user;
         }, username);
