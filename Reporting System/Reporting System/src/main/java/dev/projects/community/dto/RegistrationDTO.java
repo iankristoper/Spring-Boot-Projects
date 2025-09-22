@@ -14,7 +14,7 @@ public class RegistrationDTO {
     private String email;
     private String password;
     private String city;
-    private String role;
+    //private String role;
 
     
     public String getUsername() {
@@ -33,10 +33,10 @@ public class RegistrationDTO {
         return city;
     }
 
-    public String getRole() {
+    /*public String getRole() {
         return role;
     }
-
+    */
     
     public void setUsername(String username) {
         this.username = username;
@@ -54,8 +54,10 @@ public class RegistrationDTO {
         this.city = city;
     }
 
+    
+    /*
     public void setRole(String role) {
         this.role = role;
     }
-    
+    */
 }

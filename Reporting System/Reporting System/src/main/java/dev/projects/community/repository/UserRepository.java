@@ -2,8 +2,9 @@
 
 package dev.projects.community.repository;
 
-import dev.projects.community.dto.RegistrationDTO;
+import dev.projects.community.model.User;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
 
 
 /**
@@ -12,7 +13,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
  */
 
 
-
+@Repository
 public class UserRepository {
     
     
@@ -24,9 +25,15 @@ public class UserRepository {
     }
     
     
-    public void registerUser(RegistrationDTO registration) {
-        String sql = "INSERT INTO users(username, email, password, roles, city) VALUES(?,?,?,?,?)";
+    //this is for registration
+    //register user as a user
+    //this will pass to registration service
+    public void registerUser(User registration) {
+        String sql = "INSERT INTO users(username, email, password, role, city) VALUES(?,?,?,?,?)";
         
         jdbc.update(sql, registration.getUsername(), registration.getEmail(), registration.getPassword(), registration.getCity(), registration.getRole());
     }
+    
+    
+    //
 }

@@ -27,15 +27,17 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         
         http 
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth 
                     .requestMatchers("/admin/**").hasRole("MAINADMIN")
                     .requestMatchers("/admin/**").hasRole("ADMIN")
                     .requestMatchers("/user/**").hasRole("USER")
-                    .requestMatchers("/signup").permitAll()
+                    .requestMatchers("/signup/**").permitAll()
                     .anyRequest().authenticated())
                 
-                
-                .formLogin(form -> form
+                .formLogin(Customizer.withDefaults()) 
+                .logout(Customizer.withDefaults());
+                /*.formLogin(form -> form
                     .loginPage("/login")
                     .defaultSuccessUrl("/home", true)
                     .permitAll())
@@ -43,7 +45,7 @@ public class SecurityConfig {
                 
                 .logout(Customizer.withDefaults());
                 
-        
+                */
         return http.build();       
     }
     
