@@ -2,12 +2,10 @@
 package dev.projects.community.mapper;
 
 import dev.projects.community.dto.RegistrationDTO;
-import dev.projects.community.services.RegistrationService;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import dev.projects.community.model.User;
+import dev.projects.community.repository.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 /**
  *
@@ -15,28 +13,37 @@ import org.springframework.web.bind.annotation.RequestMapping;
  */
 
 
-@Controller
-@RequestMapping("/signup")
+@Service
 public class RegistrationMapper {
     
+    private final UserRepository userRepo;
+    private final PasswordEncoder passwordEncoder;
     
-    private final RegistrationService registrationService;
     
-    
-    public RegistrationMapper(RegistrationService registrationService) {
-        this.registrationService = registrationService;
+    public RegistrationMapper(UserRepository userRepo, PasswordEncoder passwordEncoder) {
+        this.userRepo = userRepo;
+        this.passwordEncoder = passwordEncoder;
     }
     
     
-    
-    //this is for the registration controller
-    //it will fetch the data from the user and pass it to the db
-    @PostMapping("/user")
-    public ResponseEntity<String> registrationController(@RequestBody RegistrationDTO registrationDTO) {
+    //this is registration service and will pass to the registration controller
+    //dto to model
+    public void registrationMapper(RegistrationDTO registrationDTO) {
         
-        registrationService.registrationService(registrationDTO);
+        String rawPassword = registrationDTO.getPassword();
+        String encodedPassword = passwordEncoder.encode(rawPassword);
         
-        return ResponseEntity.ok("User registered successfully!");
+        
+        User user = new User();
+        
+        user.setUsername(registrationDTO.getUsername());
+        user.setEmail(registrationDTO.getEmail());
+        user.setPassword(encodedPassword);
+        user.setCity(registrationDTO.getCity());
+        user.setRole("USER");
+        
+        userRepo.registerUser(user);
+        
     }
     
 }
