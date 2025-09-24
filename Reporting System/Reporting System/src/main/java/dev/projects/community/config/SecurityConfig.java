@@ -32,7 +32,7 @@ public class SecurityConfig {
                     .requestMatchers("/admin/**").hasRole("MAINADMIN")
                     .requestMatchers("/admin/**").hasRole("ADMIN")
                     .requestMatchers("/user/**").hasRole("USER")
-                    .requestMatchers("/signup/**").permitAll()
+                    .requestMatchers("/auth/**").permitAll()
                     .anyRequest().authenticated())
                 
                 .formLogin(Customizer.withDefaults()) 

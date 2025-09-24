@@ -26,8 +26,7 @@ public class UserRepository {
     
     
     //this is for registration
-    //register user as a user
-    //this will pass to registration service
+    //register user as a user in the db
     public void registerUser(User registration) {
         String sql = "INSERT INTO users(username, email, password, role, city) VALUES(?,?,?,?,?)";
         
@@ -35,5 +34,26 @@ public class UserRepository {
     }
     
     
-    //
+    
+    //this is for fetching data from the db then convert it as object
+    public User loadByUsername(String username) {
+        
+        String sql = "SELECT username, password, role, city FROM users WHERE username = ?";
+        
+        return jdbc.queryForObject(sql, (rs, rowNum) -> {
+            
+            User user = new User();
+            
+            user.setUsername(rs.getString("username"));
+            user.setPassword(rs.getString("password"));
+            user.setRole(rs.getString("role"));
+            user.setCity(rs.getString("city"));
+            
+            return user;
+        }, username);
+        
+    }
+    
+    
+    
 }

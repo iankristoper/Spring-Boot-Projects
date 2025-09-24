@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
-@RequestMapping("/signup")
+@RequestMapping("/auth")
 public class RegistrationController {
     
     
@@ -30,7 +30,7 @@ public class RegistrationController {
     
     //this is for the registration controller
     //it will fetch the data from the user and pass it to the db
-    @PostMapping("/user")
+    @PostMapping("/signup")
     public ResponseEntity<String> registrationController(@RequestBody RegistrationDTO registrationDTO) {
         
         registrationMapper.registrationMapper(registrationDTO);
