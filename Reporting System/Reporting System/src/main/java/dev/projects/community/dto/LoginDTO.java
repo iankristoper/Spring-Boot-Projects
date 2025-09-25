@@ -13,6 +13,7 @@ public class LoginDTO {
     
     private String username;
     private String password;
+    private String role;
     private String city;
 
     
@@ -43,5 +44,15 @@ public class LoginDTO {
         this.city = city;
     }
     
+    
+    
+    
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    public String getRole() {
+        return role;
+    }
     
 }
