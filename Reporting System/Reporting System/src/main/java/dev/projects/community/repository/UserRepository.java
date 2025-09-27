@@ -30,15 +30,15 @@ public class UserRepository {
     public void registerUser(User registration) {
         String sql = "INSERT INTO users(username, email, password, role, city) VALUES(?,?,?,?,?)";
         
-        jdbc.update(sql, registration.getUsername(), registration.getEmail(), registration.getPassword(), registration.getCity(), registration.getRole());
+        jdbc.update(sql, registration.getUsername(), registration.getEmail(), registration.getPassword(), registration.getRole(), registration.getCity());
     }
     
     
     
     //this is for fetching data from the db then convert it as object
-    public User loadByUsername(String username) {
+    public User findByUsername(String username) {
         
-        String sql = "SELECT username, password, role, city FROM users WHERE username = ?";
+        String sql = "SELECT username, password, role FROM users WHERE username = ?";
         
         return jdbc.queryForObject(sql, (rs, rowNum) -> {
             
@@ -47,9 +47,9 @@ public class UserRepository {
             user.setUsername(rs.getString("username"));
             user.setPassword(rs.getString("password"));
             user.setRole(rs.getString("role"));
-            user.setCity(rs.getString("city"));
             
             return user;
+            
         }, username);
         
     }

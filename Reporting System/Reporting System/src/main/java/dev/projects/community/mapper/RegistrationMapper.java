@@ -39,8 +39,8 @@ public class RegistrationMapper {
         user.setUsername(registrationDTO.getUsername());
         user.setEmail(registrationDTO.getEmail());
         user.setPassword(encodedPassword);
-        user.setCity(registrationDTO.getCity());
         user.setRole("USER");
+        user.setCity(registrationDTO.getCity());
         
         userRepo.registerUser(user);
         

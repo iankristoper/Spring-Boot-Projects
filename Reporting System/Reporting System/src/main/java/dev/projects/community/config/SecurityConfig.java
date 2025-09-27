@@ -2,7 +2,9 @@ package dev.projects.community.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -23,28 +25,38 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
     
     
+    private final CustomUserDetailsService customUserDetailsService;
+    
+    
+    public SecurityConfig(CustomUserDetailsService customUserDetailsService) {
+        this.customUserDetailsService = customUserDetailsService;
+    }
+    
+    
+    
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         
         http 
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth 
-                    .requestMatchers("/admin/**").hasRole("MAINADMIN")
                     .requestMatchers("/admin/**").hasRole("ADMIN")
-                    .requestMatchers("/user/**").hasRole("USER")
+                    .requestMatchers("/user/**").hasRole("CEBU")
                     .requestMatchers("/auth/**").permitAll()
                     .anyRequest().authenticated())
                 
-                .formLogin(Customizer.withDefaults()) 
+                .httpBasic(Customizer.withDefaults()) 
                 .logout(Customizer.withDefaults());
-                /*.formLogin(form -> form
+        
+        
+                /*
+                .formLogin(form -> form
                     .loginPage("/login")
                     .defaultSuccessUrl("/home", true)
                     .permitAll())
                 
                 
-                .logout(Customizer.withDefaults());
-                
+                .logout(Customizer.withDefaults());         
                 */
         return http.build();       
     }
@@ -53,5 +65,28 @@ public class SecurityConfig {
     @Bean 
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+    
+    
+    
+    // 🔑 AuthenticationManager bean, uses your custom service + password encoder
+    // automatically wires customuserdetialservice and password encoder
+    /*
+    @Bean 
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
+    */
+    
+    
+    
+    //this is the old style of using authentication manager
+    @Bean
+    public AuthenticationManager authManager(HttpSecurity http) throws Exception {
+        return http.getSharedObject(AuthenticationManagerBuilder.class)
+                .userDetailsService(customUserDetailsService)
+                .passwordEncoder(passwordEncoder())
+                .and()
+                .build();
     }
 }

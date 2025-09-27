@@ -1,6 +1,7 @@
 
 package dev.projects.community.config;
 
+import dev.projects.community.model.User;
 import java.util.Collection;
 import java.util.Collections;
 import org.springframework.security.core.GrantedAuthority;
@@ -14,46 +15,33 @@ import org.springframework.stereotype.Service;
  */
 
 
-@Service
 public class CustomUserDetails implements UserDetails {
     
-    
-    private String username;
-    private String password;
-    private String role;
-    private String city;
+    private final User user;
     
     
-    public CustomUserDetails(String username, String password, String role, String city) {
-        this.username = username;
-        this.password = password;
-        this.role = role;
-        this.city = city;
+    public CustomUserDetails(User user) {
+        this.user = user;
     }
     
-    
-    public String getCity() {
-        return city;
-    }
 
     
     //This tells Spring what role the user has
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singleton(new SimpleGrantedAuthority("ROLE_" + role));
+        return Collections.singleton(new SimpleGrantedAuthority("ROLE_" + user.getRole()));
     }
 
-    
-    
+        
     //Required by Spring Security
     @Override
     public String getPassword() {
-        return password;
+        return user.getPassword();
     }
 
     @Override
     public String getUsername() {
-        return username;
+        return user.getUsername();
     }
     
     
