@@ -4,9 +4,9 @@ import { Link } from "react-router-dom";
 
 export default function Navbar() {
   return (
-    <AppBar position="sticky" sx={{ bgcolor: "#0D0D0D", borderBottom: "1px solid #FFD700" }}>
+    <AppBar position="sticky" sx={{ bgcolor: "#0D0D0D", borderBottom: "1px solid yellow" }}>
       <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
-        <Typography variant="h6" sx={{ fontWeight: 600, color: "#FFD700" }}>
+        <Typography variant="h6" sx={{ fontWeight: 600, color: "yellow" }}>
           Community Reporting App
         </Typography>
         <Box>

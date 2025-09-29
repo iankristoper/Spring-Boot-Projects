@@ -1,14 +1,24 @@
-import React, { useState } from "react";
-import { Container, TextField, Button, Typography, Box, Paper } from "@mui/material";
+import React, { useState, useEffect } from "react";
+import { Container, TextField, Button, Typography, Box, Paper, Alert } from "@mui/material";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";  // ✅ import useNavigate
+import { useNavigate, useLocation } from "react-router-dom";
+
+
 
 export default function Login() {
-  const [form, setForm] = useState({ email: "", password: "" });
+  const [form, setForm] = useState({ username: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [sessionMessage, setSessionMessage] = useState("");
 
-  const navigate = useNavigate(); // ✅ create navigate instance
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.state?.sessionExpired) {
+      setSessionMessage("Your session has expired, please log in again.");
+    }
+  }, [location]);
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -16,21 +26,25 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setSessionMessage("");
     setLoading(true);
 
     try {
-      const response = await axios.post("http://localhost:8080/auth/login", form);
+      const response = await axios.post(
+        "http://localhost:8080/api/auth/login",
+        form,
+        { withCredentials: true }
+      );
 
-      console.log("✅ Login Success:", response.data);
+      // Save authenticated state
+      localStorage.setItem("isAuthenticated", "true");
+      localStorage.setItem("user", JSON.stringify(response.data));
+      localStorage.setItem("expiry", Date.now() + 3600000); // 1 hour
 
-      // Save token in localStorage
-      localStorage.setItem("token", response.data.token);
-
-      // ✅ Redirect to dashboard (no page reload)
       navigate("/dashboard");
     } catch (err) {
       console.error("❌ Login Failed:", err);
-      setError("Invalid email or password");
+      setError("Invalid username or password");
     } finally {
       setLoading(false);
     }
@@ -42,6 +56,8 @@ export default function Login() {
         <Typography variant="h4" gutterBottom color="secondary" textAlign="center">
           Login
         </Typography>
+
+        {sessionMessage && <Alert severity="warning" sx={{ mb: 2 }}>{sessionMessage}</Alert>}
 
         <Box component="form" onSubmit={handleSubmit}>
           <TextField

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
-@RequestMapping("admin/")
+@RequestMapping("/api/admin")
 public class AdminController {
     
     

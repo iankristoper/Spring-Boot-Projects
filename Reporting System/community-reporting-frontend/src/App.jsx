@@ -1,20 +1,45 @@
 import React from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
 import Navbar from "./components/Navbar";
+import DashboardNavbar from "./components/DashboardNavbar"; 
 
-const PrivateRoute = ({ children }) => {
-  const token = localStorage.getItem("token");
-  return token ? children : <Navigate to="/login" />;
+const PrivateRoute = ({ children, role }) => {
+  const isAuthenticated = localStorage.getItem("isAuthenticated") === "true";
+  const expiry = localStorage.getItem("expiry");
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  if (!isAuthenticated || !expiry || Date.now() > Number(expiry)) {
+    // Clear any stale data
+    localStorage.removeItem("isAuthenticated");
+    localStorage.removeItem("user");
+    localStorage.removeItem("expiry");
+
+    // Redirect to login with state for session expired message
+    return <Navigate to="/login" state={{ sessionExpired: true }} replace />;
+  }
+
+  // Check role if provided
+  if (role && user?.role !== role) {
+    return <Navigate to="/" replace />; // redirect unauthorized users
+  }
+
+  return children;
 };
 
+
 export default function App() {
+  const location = useLocation();
+  const isDashboard = location.pathname.startsWith("/dashboard");
+
   return (
     <>
-      <Navbar />
+      {/* ✅ Different navbars based on route */}
+      {isDashboard ? <DashboardNavbar /> : <Navbar />}
+
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
@@ -22,11 +47,12 @@ export default function App() {
         <Route
           path="/dashboard"
           element={
-            <PrivateRoute>
+            <PrivateRoute role="ROLE_USER">
               <Dashboard />
             </PrivateRoute>
           }
         />
+
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </>
