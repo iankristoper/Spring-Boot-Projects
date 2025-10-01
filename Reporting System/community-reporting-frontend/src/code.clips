@@ -1,3 +1,5 @@
+//this is for sign up - pop up box window
+
 import React, { useState } from "react";
 import {
   Container,
@@ -10,7 +12,10 @@ import {
   Select,
   InputLabel,
   FormControl,
-  Snackbar,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
   Alert
 } from "@mui/material";
 import axios from "axios";
@@ -26,7 +31,7 @@ export default function Signup() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
-  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [openPopup, setOpenPopup] = useState(false);
 
   const navigate = useNavigate();
 
@@ -47,17 +52,14 @@ export default function Signup() {
       console.log("✅ Signup Success:", response.data);
 
       setSuccess("Account created successfully! You can now log in.");
-      setOpenSnackbar(true);
+      setOpenPopup(true);
 
       // clear form
       setForm({ username: "", email: "", password: "", city: "" });
-
-      // redirect after 2s
-      setTimeout(() => navigate("/login"), 2000);
     } catch (err) {
       console.error("❌ Signup Failed:", err);
       setError(err.response?.data?.message || "Something went wrong. Try again.");
-      setOpenSnackbar(true);
+      setOpenPopup(true);
     } finally {
       setLoading(false);
     }
@@ -70,7 +72,7 @@ export default function Signup() {
         <Typography
           variant="h5"
           gutterBottom
-          sx={{ mb: 2, fontWeight: "bold", textAlign: "left", color: "white" }}
+          sx={{ mb: 2, fontWeight: "bold", textAlign: "center", color: "primary.main" }}
         >
           Sign Up
         </Typography>
@@ -102,13 +104,9 @@ export default function Signup() {
             onChange={handleChange}
           />
 
-          <FormControl fullWidth margin="normal" required>
-            <InputLabel
-              required={false} // disables default required styling (no *)
-              shrink
-            >
-              City
-            </InputLabel>
+          {/* City selection */}
+          <FormControl fullWidth margin="normal">
+            <InputLabel>City</InputLabel>
             <Select
               name="city"
               value={form.city}
@@ -121,36 +119,50 @@ export default function Signup() {
             </Select>
           </FormControl>
 
-
           <Button
             fullWidth
             type="submit"
             variant="contained"
-            sx={{ mt: 2, borderRadius: "12px" }}
+            sx={{ mt: 2, borderRadius: "12px", fontWeight: "bold" }}
             disabled={loading}
           >
-            {loading ? "Signing up..." : "Signup"}
+            {loading ? "Signing up..." : "Sign Up"}
           </Button>
         </Box>
       </Paper>
 
-      {/* ✅ Snackbar for success/error */}
-      <Snackbar
-        open={openSnackbar}
-        autoHideDuration={3000}
-        onClose={() => setOpenSnackbar(false)}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        {success ? (
-          <Alert onClose={() => setOpenSnackbar(false)} severity="success" sx={{ width: "100%" }}>
-            {success}
-          </Alert>
-        ) : error ? (
-          <Alert onClose={() => setOpenSnackbar(false)} severity="error" sx={{ width: "100%" }}>
-            {error}
-          </Alert>
-        ) : null}
-      </Snackbar>
+      {/* ✅ Popup Dialog */}
+      <Dialog open={openPopup} onClose={() => setOpenPopup(false)}>
+        <DialogTitle>{success ? "✅ Success" : "❌ Error"}</DialogTitle>
+        <DialogContent>
+          {success ? (
+            <Alert severity="success">{success}</Alert>
+          ) : (
+            <Alert severity="error">{error}</Alert>
+          )}
+        </DialogContent>
+        <DialogActions>
+          {success ? (
+            <Button
+              onClick={() => {
+                setOpenPopup(false);
+                navigate("/login"); // redirect to login
+              }}
+              color="primary"
+              variant="contained"
+            >
+              Go to Login
+            </Button>
+          ) : (
+            <Button onClick={() => setOpenPopup(false)} color="error">
+              Close
+            </Button>
+          )}
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 }
+
+==============================================================================
+==============================================================================

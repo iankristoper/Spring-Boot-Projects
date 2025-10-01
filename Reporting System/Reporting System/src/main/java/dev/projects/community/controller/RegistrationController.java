@@ -2,6 +2,8 @@
 package dev.projects.community.controller;
 
 import dev.projects.community.dto.RegistrationDTO;
+import dev.projects.community.mapper.RegistrationMapper;
+import java.util.Map;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,10 +21,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class RegistrationController {
     
     
-    private final dev.projects.community.mapper.RegistrationMapper registrationMapper;
+    private final RegistrationMapper registrationMapper;
     
     
-    public RegistrationController(dev.projects.community.mapper.RegistrationMapper registrationMapper) {
+    public RegistrationController(RegistrationMapper registrationMapper) {
         this.registrationMapper = registrationMapper;
     }
     
@@ -31,11 +33,15 @@ public class RegistrationController {
     //this is for the registration controller
     //it will fetch the data from the user and pass it to the db
     @PostMapping("/signup")
-    public ResponseEntity<String> registrationController(@RequestBody RegistrationDTO registrationDTO) {
+    public ResponseEntity<?> registrationController(@RequestBody RegistrationDTO registrationDTO) {
         
-        registrationMapper.registrationMapper(registrationDTO);
-        
-        return ResponseEntity.ok("User: " + registrationDTO.getUsername() + " -> Success Registration");
+        try {
+            registrationMapper.registrationMapper(registrationDTO);
+            return ResponseEntity.ok(Map.of("message", "User registered successfully!"));
+            
+        } catch(RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
     }
     
 }

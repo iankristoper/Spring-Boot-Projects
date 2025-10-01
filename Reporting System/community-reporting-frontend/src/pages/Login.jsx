@@ -17,6 +17,8 @@ export default function Login() {
   useEffect(() => {
     if (location.state?.sessionExpired) {
       setSessionMessage("Your session has expired, please log in again.");
+    } else if (location.state?.roleError) {
+      setSessionMessage(location.state.roleError);
     }
   }, [location]);
 
@@ -53,8 +55,12 @@ export default function Login() {
   return (
     <Container maxWidth="sm" sx={{ mt: 10 }}>
       <Paper sx={{ p: 4, borderRadius: "16px", bgcolor: "background.paper" }}>
-        <Typography variant="h4" gutterBottom color="secondary" textAlign="center">
-          Login
+        <Typography
+          variant="h5"
+          gutterBottom
+          sx={{ mb: 2, fontWeight: "bold", textAlign: "left", color: "white" }}
+        >
+          Log in
         </Typography>
 
         {sessionMessage && <Alert severity="warning" sx={{ mb: 2 }}>{sessionMessage}</Alert>}

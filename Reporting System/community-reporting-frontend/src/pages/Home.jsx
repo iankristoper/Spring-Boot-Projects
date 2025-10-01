@@ -11,13 +11,22 @@ export default function Home() {
       <Typography variant="h6" sx={{ mb: 4 }} color="text.secondary">
         A modern platform for community issue reporting and transparency.
       </Typography>
-      <Box>
+
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          gap: 2,
+          flexDirection: { xs: "column", sm: "row" }, // 👈 Stack vertically on mobile, row on desktop
+          alignItems: "center",
+        }}
+      >
         <Button
           variant="contained"
           color="primary"
           component={Link}
           to="/login"
-          sx={{ mr: 2, borderRadius: "12px", px: 4 }}
+          sx={{ borderRadius: "12px", px: 4, width: { xs: "80%", sm: "auto" } }} // 👈 wider on mobile
         >
           Login
         </Button>
@@ -26,7 +35,7 @@ export default function Home() {
           color="primary"
           component={Link}
           to="/signup"
-          sx={{ borderRadius: "12px", px: 4 }}
+          sx={{ borderRadius: "12px", px: 4, width: { xs: "80%", sm: "auto" } }}
         >
           Signup
         </Button>

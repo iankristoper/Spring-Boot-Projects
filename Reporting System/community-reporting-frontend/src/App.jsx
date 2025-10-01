@@ -22,9 +22,15 @@ const PrivateRoute = ({ children, role }) => {
     return <Navigate to="/login" state={{ sessionExpired: true }} replace />;
   }
 
-  // Check role if provided
+ // Role check
   if (role && user?.role !== role) {
-    return <Navigate to="/" replace />; // redirect unauthorized users
+    return (
+      <Navigate
+        to="/login"
+        state={{ roleError: "You are not authorized to access this page." }}
+        replace
+      />
+    );
   }
 
   return children;

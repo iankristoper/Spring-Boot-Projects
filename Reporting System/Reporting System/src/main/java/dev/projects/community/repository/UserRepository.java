@@ -3,6 +3,7 @@
 package dev.projects.community.repository;
 
 import dev.projects.community.model.User;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -25,15 +26,26 @@ public class UserRepository {
     }
     
     
-    //this is for registration
-    //register user as a user in the db
     public void registerUser(User registration) {
-        String sql = "INSERT INTO users(username, email, password, role, city) VALUES(?,?,?,?,?)";
         
-        jdbc.update(sql, registration.getUsername(), registration.getEmail(), registration.getPassword(), registration.getRole(), registration.getCity());
+        String checkUser = "SELECT COUNT(*) FROM users WHERE username = ?";
+        String checkEmail = "SELECT COUNT(*) FROM users WHERE email = ?";
+
+        Integer userExists = jdbc.queryForObject(checkUser, Integer.class, registration.getUsername());
+        Integer emailExists = jdbc.queryForObject(checkEmail, Integer.class, registration.getEmail());
+
+        if (userExists != null && userExists > 0) {
+            throw new RuntimeException("Username already exists");
+        }
+        if (emailExists != null && emailExists > 0) {
+            throw new RuntimeException("Email already exists");
+        }
+
+        String sql = "INSERT INTO users(username, email, password, role, city) VALUES(?,?,?,?,?)";
+        jdbc.update(sql, registration.getUsername(), registration.getEmail(),
+                registration.getPassword(), registration.getRole(), registration.getCity());
     }
-    
-    
+
     
     //this is for fetching data from the db then convert it as object
     public User findByUsername(String username) {

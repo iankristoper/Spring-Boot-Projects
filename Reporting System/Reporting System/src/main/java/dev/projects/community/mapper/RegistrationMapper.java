@@ -30,11 +30,10 @@ public class RegistrationMapper {
     //dto to model
     public void registrationMapper(RegistrationDTO registrationDTO) {
         
+        User user = new User();
+        
         String rawPassword = registrationDTO.getPassword();
         String encodedPassword = passwordEncoder.encode(rawPassword);
-        
-        
-        User user = new User();
         
         user.setUsername(registrationDTO.getUsername());
         user.setEmail(registrationDTO.getEmail());
