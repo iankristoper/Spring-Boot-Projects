@@ -1,152 +1,164 @@
 import React from "react";
-import {
-  Box,
-  Container,
-  Typography,
-  Grid,
-  Paper,
-  Button,
-} from "@mui/material";
+import { Container, Paper, Typography, Button, Box, Stack } from "@mui/material";
 import DynamicFeedIcon from "@mui/icons-material/DynamicFeed";
 import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
 import HistoryIcon from "@mui/icons-material/History";
 import useSessionTimeout from "../hooks/useSessionTimeout";
 
 
-export default function Dashboard() {
 
+
+export default function Dashboard() {
   useSessionTimeout(3600000); // 1 hour inactivity
 
+  const cards = [
+    {
+      title: "Feed",
+      desc: "Browse reports from the community.",
+      icon: <DynamicFeedIcon sx={{ fontSize: 50, color: "yellow" }} />,
+      button: "View Feed",
+    },
+    {
+      title: "My Reports",
+      desc: "Track and manage your submitted reports.",
+      icon: <AssignmentTurnedInIcon sx={{ fontSize: 50, color: "yellow" }} />,
+      button: "View Reports",
+    },
+    {
+      title: "Report History",
+      desc: "View past reports and resolutions.",
+      icon: <HistoryIcon sx={{ fontSize: 50, color: "yellow" }} />,
+      button: "View History",
+    },
+  ];
+
   return (
-    <Container maxWidth="lg" sx={{ mt: 5 }}>
-      {/* Header */}
-      <Paper
-        elevation={3}
+    <Box
+      sx={{
+        minHeight: "100vh",        // take full height
+        display: "flex",
+        flexDirection: "column",   // stack content + footer
+      }}
+    >
+      <Container maxWidth="lg" sx={{ mt: 4, mb: 4, flex: 1 }}>
+        {/* Header */}
+        <Paper
+          elevation={3}
+          sx={{
+            p: { xs: 3, sm: 4 },
+            borderRadius: "16px",
+            bgcolor: "black",
+            color: "white",
+            textAlign: "center",
+            wordWrap: "break-word",
+          }}
+        >
+          <Typography
+            variant="h4"
+            fontWeight="bold"
+            sx={{ color: "yellow", fontSize: { xs: "1.5rem", sm: "2rem" } }}
+          >
+            Reporting Dashboard
+          </Typography>
+          <Typography
+            variant="body1"
+            sx={{
+              mt: { xs: 2, sm: 3 },
+              fontWeight: "bold",
+              fontSize: { xs: "0.9rem", sm: "1rem" },
+            }}
+          >
+            Welcome back, User 👋
+          </Typography>
+        </Paper>
+
+        {/* Action Cards */}
+        <Stack
+          direction={{ xs: "column", sm: "row" }}
+          spacing={3}
+          justifyContent="center"
+          sx={{ mt: 2 }}
+        >
+          {cards.map((card, index) => (
+            <Box
+              key={index}
+              sx={{
+                flex: 1,
+                minWidth: { xs: "280px", sm: "0" },
+                maxWidth: { xs: "100%", sm: "320px" },
+                alignSelf: "stretch",
+              }}
+            >
+              <Paper
+                elevation={4}
+                sx={{
+                  p: { xs: 3, sm: 4 },
+                  textAlign: "center",
+                  borderRadius: "16px",
+                  bgcolor: "background.paper",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  height: "100%",
+                  wordWrap: "break-word",
+                }}
+              >
+                {card.icon}
+                <Box sx={{ mt: 2, flexGrow: 1 }}>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      fontWeight: "bold",
+                      fontSize: { xs: "1rem", sm: "1.2rem" },
+                    }}
+                  >
+                    {card.title}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      mt: 1,
+                      mb: 2,
+                      fontSize: { xs: "0.85rem", sm: "0.95rem" },
+                    }}
+                  >
+                    {card.desc}
+                  </Typography>
+                </Box>
+                <Button
+                  variant="contained"
+                  sx={{
+                    bgcolor: "black",
+                    color: "yellow",
+                    borderRadius: "12px",
+                    textTransform: "none",
+                    fontWeight: "bold",
+                    py: 1,
+                  }}
+                  fullWidth
+                >
+                  {card.button}
+                </Button>
+              </Paper>
+            </Box>
+          ))}
+        </Stack>
+      </Container>
+
+      {/* Footer pinned at bottom */}
+      <Box
+        component="footer"
         sx={{
-          p: 4,
-          borderRadius: "16px",
-          bgcolor: "black",
-          color: "white",
           textAlign: "center",
+          color: "text.secondary",
+          py: 2,
         }}
       >
-        <Typography variant="h4" fontWeight="bold" sx={{ color: "yellow" }}>
-          Community Reporting Dashboard
+        <Typography variant="body2">
+          © 2025 Community Reporting App
         </Typography>
-        <Typography variant="body1" sx={{ mt: 5, fontWeight: "bold" }}>
-          Welcome back, User 👋
-        </Typography>
-      </Paper>
-
-      {/* Action Cards */}
-      <Grid
-        container
-        spacing={3}
-        justifyContent="center"
-        sx={{ mt: 4 }}
-      >
-        {/* Feed */}
-        <Grid item xs={12} sm={6} md={4}>
-          <Paper
-            elevation={4}
-            sx={{
-              p: 4,
-              textAlign: "center",
-              borderRadius: "16px",
-              bgcolor: "background.paper",
-              height: "100%",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "space-between",
-            }}
-          >
-            <DynamicFeedIcon sx={{ fontSize: 50, color: "yellow" }} />
-            <Box>
-              <Typography variant="h6" sx={{ mt: 2, fontWeight: "bold" }}>
-                Feed
-              </Typography>
-              <Typography variant="body2" sx={{ mt: 1, mb: 2 }}>
-                Browse reports from the community.
-              </Typography>
-            </Box>
-            <Button
-              variant="contained"
-              sx={{ bgcolor: "black", color: "yellow", borderRadius: "12px" }}
-              fullWidth
-            >
-              View Feed
-            </Button>
-          </Paper>
-        </Grid>
-
-        {/* My Reports */}
-        <Grid item xs={12} sm={6} md={4}>
-          <Paper
-            elevation={4}
-            sx={{
-              p: 4,
-              textAlign: "center",
-              borderRadius: "16px",
-              bgcolor: "background.paper",
-              height: "100%",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "space-between",
-            }}
-          >
-            <AssignmentTurnedInIcon sx={{ fontSize: 50, color: "yellow" }} />
-            <Box>
-              <Typography variant="h6" sx={{ mt: 2, fontWeight: "bold" }}>
-                My Reports
-              </Typography>
-              <Typography variant="body2" sx={{ mt: 1, mb: 2 }}>
-                Track and manage your submitted reports.
-              </Typography>
-            </Box>
-            <Button
-              variant="contained"
-              sx={{ bgcolor: "black", color: "yellow", borderRadius: "12px" }}
-              fullWidth
-            >
-              View Reports
-            </Button>
-          </Paper>
-        </Grid>
-
-        {/* Report History */}
-        <Grid item xs={12} sm={6} md={4}>
-          <Paper
-            elevation={4}
-            sx={{
-              p: 4,
-              textAlign: "center",
-              borderRadius: "16px",
-              bgcolor: "background.paper",
-              height: "100%",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "space-between",
-            }}
-          >
-            <HistoryIcon sx={{ fontSize: 50, color: "yellow" }} />
-            <Box>
-              <Typography variant="h6" sx={{ mt: 2, fontWeight: "bold" }}>
-                Report History
-              </Typography>
-              <Typography variant="body2" sx={{ mt: 1, mb: 2 }}>
-                View past reports and resolutions.
-              </Typography>
-            </Box>
-            <Button
-              variant="contained"
-              sx={{ bgcolor: "black", color: "yellow", borderRadius: "12px" }}
-              fullWidth
-            >
-              View History
-            </Button>
-          </Paper>
-        </Grid>
-      </Grid>
-    </Container>
+      </Box>
+    </Box>
   );
 }

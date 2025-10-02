@@ -115,9 +115,9 @@ export default function Signup() {
               onChange={handleChange}
               label="City"
             >
-              <MenuItem value="Cebu City">Cebu City</MenuItem>
-              <MenuItem value="Mandaue City">Mandaue City</MenuItem>
-              <MenuItem value="Lapu-Lapu City">Lapu-Lapu City</MenuItem>
+              <MenuItem value="CEBU">Cebu City</MenuItem>
+              <MenuItem value="MANDAUE">Mandaue City</MenuItem>
+              <MenuItem value="LAPU-LAPU">Lapu-Lapu City</MenuItem>
             </Select>
           </FormControl>
 

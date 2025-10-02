@@ -166,3 +166,151 @@ export default function Signup() {
 
 ==============================================================================
 ==============================================================================
+//dashboard with out footer
+
+import React from "react";
+import { Container, Paper, Typography, Button, Box, Stack } from "@mui/material";
+import DynamicFeedIcon from "@mui/icons-material/DynamicFeed";
+import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
+import HistoryIcon from "@mui/icons-material/History";
+import useSessionTimeout from "../hooks/useSessionTimeout";
+
+export default function Dashboard() {
+  useSessionTimeout(3600000); // 1 hour inactivity
+
+  const cards = [
+    {
+      title: "Feed",
+      desc: "Browse reports from the community.",
+      icon: <DynamicFeedIcon sx={{ fontSize: 50, color: "yellow" }} />,
+      button: "View Feed",
+    },
+    {
+      title: "My Reports",
+      desc: "Track and manage your submitted reports.",
+      icon: <AssignmentTurnedInIcon sx={{ fontSize: 50, color: "yellow" }} />,
+      button: "View Reports",
+    },
+    {
+      title: "Report History",
+      desc: "View past reports and resolutions.",
+      icon: <HistoryIcon sx={{ fontSize: 50, color: "yellow" }} />,
+      button: "View History",
+    },
+  ];
+
+  return (
+    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+      {/* Header */}
+      <Paper
+        elevation={3}
+        sx={{
+          p: { xs: 3, sm: 4 },
+          borderRadius: "16px",
+          bgcolor: "black",
+          color: "white",
+          textAlign: "center",
+          wordWrap: "break-word",
+        }}
+      >
+        <Typography
+          variant="h4"
+          fontWeight="bold"
+          sx={{ color: "yellow", fontSize: { xs: "1.5rem", sm: "2rem" } }}
+        >
+          Reporting Dashboard
+        </Typography>
+        <Typography
+          variant="body1"
+          sx={{
+            mt: { xs: 2, sm: 3 },
+            fontWeight: "bold",
+            fontSize: { xs: "0.9rem", sm: "1rem" },
+          }}
+        >
+          Welcome back, User 👋
+        </Typography>
+      </Paper>
+
+      {/* Action Cards using Stack for responsive wrapping */}
+      <Stack
+        direction={{ xs: "column", sm: "row" }}
+        spacing={3}
+        justifyContent="center"
+        sx={{ mt: 2 }}
+      >
+        {cards.map((card, index) => (
+          <Box
+            key={index}
+            sx={{
+              flex: 1,
+              minWidth: { xs: "280px", sm: "0" }, // ✅ ensures mobile cards are equal
+              maxWidth: { xs: "100%", sm: "320px" }, // consistent max width
+              alignSelf: "stretch", // ✅ ensures equal height
+            }}
+          >
+            <Paper
+              elevation={4}
+              sx={{
+                p: { xs: 3, sm: 4 },
+                textAlign: "center",
+                borderRadius: "16px",
+                bgcolor: "background.paper",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+                alignItems: "center",
+                height: "100%",
+                wordWrap: "break-word",
+              }}
+            >
+              {card.icon}
+              <Box sx={{ mt: 2, flexGrow: 1 }}>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    fontWeight: "bold",
+                    fontSize: { xs: "1rem", sm: "1.2rem" },
+                  }}
+                >
+                  {card.title}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    mt: 1,
+                    mb: 2,
+                    fontSize: { xs: "0.85rem", sm: "0.95rem" },
+                  }}
+                >
+                  {card.desc}
+                </Typography>
+              </Box>
+              <Button
+                variant="contained"
+                sx={{
+                  bgcolor: "black",
+                  color: "yellow",
+                  borderRadius: "12px",
+                  textTransform: "none",
+                  fontWeight: "bold",
+                  py: 1,
+                }}
+                fullWidth
+              >
+                {card.button}
+              </Button>
+            </Paper>
+          </Box>
+
+          
+        ))}
+      </Stack>
+      {/* Footer */}
+
+
+    </Container>
+    
+  );
+  
+}
