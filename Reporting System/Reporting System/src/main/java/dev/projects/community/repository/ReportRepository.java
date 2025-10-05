@@ -33,7 +33,7 @@ public class ReportRepository {
         
         String sql = "INSERT INTO reports(title, description, category, priority, location, media, createdAt) VALUES(?,?,?,?,?,?,?)";
         
-        jdbc.update(sql, report.getTitle(), report.getDescription(), report.getCategory(), report.getPriority(), report.getLocation(), report.getMedia(), report.getCreatedAt());
+        jdbc.update(sql, report.getTitle(), report.getDescription(), report.getCategory().name(), report.getPriority().name(), report.getLocation(), report.getMedia(), report.getCreatedAt());
         
     }
     

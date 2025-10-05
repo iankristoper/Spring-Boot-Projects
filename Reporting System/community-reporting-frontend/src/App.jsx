@@ -6,6 +6,13 @@ import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
 import Navbar from "./components/Navbar";
 import DashboardNavbar from "./components/DashboardNavbar"; 
+import Reports from "./pages/Reports";
+
+
+
+
+
+
 
 const PrivateRoute = ({ children, role }) => {
   const isAuthenticated = localStorage.getItem("isAuthenticated") === "true";
@@ -37,9 +44,18 @@ const PrivateRoute = ({ children, role }) => {
 };
 
 
+
+
+
+
+
+
+
 export default function App() {
   const location = useLocation();
-  const isDashboard = location.pathname.startsWith("/dashboard");
+  const isDashboard =
+  location.pathname.startsWith("/dashboard") ||
+  location.pathname.startsWith("/reports");
 
   return (
     <>
@@ -50,11 +66,22 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+
         <Route
           path="/dashboard"
           element={
             <PrivateRoute role="ROLE_USER">
               <Dashboard />
+            </PrivateRoute>
+          }
+        />
+
+        {/* ✅ Protected reports */}
+        <Route
+          path="/reports"
+          element={
+            <PrivateRoute role="ROLE_USER">
+              <Reports />
             </PrivateRoute>
           }
         />

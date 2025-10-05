@@ -4,6 +4,7 @@ import DynamicFeedIcon from "@mui/icons-material/DynamicFeed";
 import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
 import HistoryIcon from "@mui/icons-material/History";
 import useSessionTimeout from "../hooks/useSessionTimeout";
+import { useNavigate } from "react-router-dom";
 
 
 
@@ -11,26 +12,33 @@ import useSessionTimeout from "../hooks/useSessionTimeout";
 export default function Dashboard() {
   useSessionTimeout(3600000); // 1 hour inactivity
 
+  const navigate = useNavigate();
+
+
   const cards = [
     {
       title: "Feed",
       desc: "Browse reports from the community.",
       icon: <DynamicFeedIcon sx={{ fontSize: 50, color: "yellow" }} />,
       button: "View Feed",
+      path: "/feed",   // later you’ll create Feed.jsx
     },
     {
       title: "My Reports",
       desc: "Track and manage your submitted reports.",
       icon: <AssignmentTurnedInIcon sx={{ fontSize: 50, color: "yellow" }} />,
       button: "View Reports",
+      path: "/reports",   // 👈 this will open Reports.jsx
     },
     {
       title: "Report History",
       desc: "View past reports and resolutions.",
       icon: <HistoryIcon sx={{ fontSize: 50, color: "yellow" }} />,
       button: "View History",
+      path: "/history",
     },
   ];
+
 
   return (
     <Box
@@ -126,20 +134,22 @@ export default function Dashboard() {
                     {card.desc}
                   </Typography>
                 </Box>
-                <Button
-                  variant="contained"
-                  sx={{
-                    bgcolor: "black",
-                    color: "yellow",
-                    borderRadius: "12px",
-                    textTransform: "none",
-                    fontWeight: "bold",
-                    py: 1,
-                  }}
-                  fullWidth
-                >
-                  {card.button}
-                </Button>
+                  <Button
+                    variant="contained"
+                    sx={{
+                      bgcolor: "black",
+                      color: "yellow",
+                      borderRadius: "12px",
+                      textTransform: "none",
+                      fontWeight: "bold",
+                      py: 1,
+                    }}
+                    fullWidth
+                    onClick={() => navigate(card.path)}   // 👈 this is the key
+                  >
+                    {card.button}
+                  </Button>
+
               </Paper>
             </Box>
           ))}
