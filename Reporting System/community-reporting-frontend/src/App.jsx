@@ -7,6 +7,8 @@ import Dashboard from "./pages/Dashboard";
 import Navbar from "./components/Navbar";
 import DashboardNavbar from "./components/DashboardNavbar"; 
 import Reports from "./pages/Reports";
+import "leaflet/dist/leaflet.css";
+
 
 
 

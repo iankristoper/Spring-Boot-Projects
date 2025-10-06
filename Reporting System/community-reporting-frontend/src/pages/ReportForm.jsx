@@ -13,72 +13,206 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
+
 import CloseIcon from "@mui/icons-material/Close";
+import axios from "axios";
+import { MapContainer, TileLayer, Marker } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import L from "leaflet";
+
+
+// Setup Leaflet default icon (important or map marker won't show)
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png",
+  iconUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png",
+  shadowUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png",
+});
+
+
+
+
+
 
 export default function ReportForm({ open, handleClose, handleSubmit }) {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    category: "",
-    priority: "",
-    location: "",
-    mediaFiles: [],
-    mediaPreviews: [],
-  });
+    const [openMap, setOpenMap] = useState(false);
+    const [position, setPosition] = useState({ lat: 14.5995, lng: 120.9842 }); // Default: Manila
+  
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
+    
 
-  const handleMediaChange = (e) => {
-    const files = Array.from(e.target.files);
-    if (files.length === 0) return;
 
-    const previews = files.map((file) =>
-      file.type.startsWith("image/") || file.type.startsWith("video/")
-        ? URL.createObjectURL(file)
-        : null
-    );
 
-    setFormData({
-      ...formData,
-      mediaFiles: [...formData.mediaFiles, ...files],
-      mediaPreviews: [...formData.mediaPreviews, ...previews],
+
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
+    //States
+    const [formData, setFormData] = useState({
+        title: "",
+        description: "",
+        category: "",
+        priority: "",
+        location: "",
+        mediaFiles: [],
+        mediaPreviews: [],
     });
-  };
 
-  const handleRemoveMedia = (index) => {
-    const updatedFiles = [...formData.mediaFiles];
-    const updatedPreviews = [...formData.mediaPreviews];
-    updatedFiles.splice(index, 1);
-    updatedPreviews.splice(index, 1);
-    setFormData({
-      ...formData,
-      mediaFiles: updatedFiles,
-      mediaPreviews: updatedPreviews,
+    //Priority dialog state (move this OUTSIDE of onSubmit)
+    const [priorityDialog, setPriorityDialog] = useState({
+        open: false,
+        level: "",
+        message: "",
     });
-  };
 
-  const onSubmit = () => {
-    handleSubmit(formData);
-    handleClose();
-    setFormData({
-      title: "",
-      description: "",
-      category: "",
-      priority: "",
-      location: "",
-      mediaFiles: [],
-      mediaPreviews: [],
-    });
-  };
+    //Handlers
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData({ ...formData, [name]: value });
+    };
 
-  return (
+    const handleMediaChange = (e) => {
+        const files = Array.from(e.target.files);
+        if (files.length === 0) return;
+
+        const previews = files.map((file) =>
+        file.type.startsWith("image/") || file.type.startsWith("video/")
+            ? URL.createObjectURL(file)
+            : null
+        );
+
+        setFormData({
+        ...formData,
+        mediaFiles: [...formData.mediaFiles, ...files],
+        mediaPreviews: [...formData.mediaPreviews, ...previews],
+        });
+    };
+
+    const handleRemoveMedia = (index) => {
+        const updatedFiles = [...formData.mediaFiles];
+        const updatedPreviews = [...formData.mediaPreviews];
+        updatedFiles.splice(index, 1);
+        updatedPreviews.splice(index, 1);
+        setFormData({
+        ...formData,
+        mediaFiles: updatedFiles,
+        mediaPreviews: updatedPreviews,
+        });
+    };
+
+    const onSubmit = () => {
+        handleSubmit(formData);
+        handleClose();
+        setFormData({
+        title: "",
+        description: "",
+        category: "",
+        priority: "",
+        location: "",
+        mediaFiles: [],
+        mediaPreviews: [],
+        });
+    };
+
+    //Priority dialog logic
+    const handlePriorityChange = (e) => {
+        const value = e.target.value;
+        let message = "";
+
+        switch (value) {
+        case "LOW":
+            message = "Low Urgency — minor issue that can be resolved later without impact.";
+            break;
+        case "MEDIUM":
+            message = "Medium Urgency — should be addressed soon but not critical yet.";
+            break;
+        case "HIGH":
+            message = "High Urgency — needs immediate attention to prevent bigger issues.";
+            break;
+        case "CRITICAL":
+            message = "Critical Urgency — severe problem that requires urgent action.";
+            break;
+        default:
+            message = "";
+        }
+
+        setPriorityDialog({ open: true, level: value, message });
+    };
+
+    const confirmPriority = () => {
+        setFormData({ ...formData, priority: priorityDialog.level });
+        setPriorityDialog({ open: false, level: "", message: "" });
+    };
+
+    const cancelPriority = () => {
+        setPriorityDialog({ open: false, level: "", message: "" });
+    };
+
+ 
+    //Confirm button handler
+    const handleConfirmLocation = async () => {
+        try {
+            const res = await axios.get(
+            `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${position.lat}&lon=${position.lng}`
+            );
+            const address = res.data.display_name;
+            setFormData({
+            ...formData,
+            location: `${address} (${position.lat}, ${position.lng})`,
+            });
+        } catch (error) {
+            console.error("Error fetching address:", error);
+            setFormData({
+            ...formData,
+            location: `(${position.lat}, ${position.lng})`,
+            });
+        }
+        setOpenMap(false);
+    };
+
+    //Get current user location (GPS)
+    const handleUseCurrentLocation = () => {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                const { latitude, longitude } = pos.coords;
+                setPosition({ lat: latitude, lng: longitude });
+            },
+            (err) => {
+                console.error("Geolocation error:", err);
+                alert("Unable to fetch your current location. Please allow location access.");
+            }
+            );
+        } else {
+            alert("Geolocation is not supported by your browser.");
+        }
+    };
+
+
+
+    return (
     <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
+        
+      {/* Priority Confirmation Dialog */}
+      <Dialog
+        open={priorityDialog.open}
+        onClose={cancelPriority}
+        fullWidth
+        maxWidth="xs"
+      >
+        <DialogTitle>Confirm Priority Level</DialogTitle>
+        <DialogContent>
+          <p>{priorityDialog.message}</p>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={cancelPriority}>Cancel</Button>
+          <Button variant="contained" color="primary" onClick={confirmPriority}>
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
+
       <DialogTitle>New Report</DialogTitle>
       <DialogContent>
         <TextField
@@ -108,9 +242,22 @@ export default function ReportForm({ open, handleClose, handleSubmit }) {
           value={formData.category}
           onChange={handleChange}
         >
-          <MenuItem value="Garbage">Garbage</MenuItem>
-          <MenuItem value="Road">Road</MenuItem>
-          <MenuItem value="Safety">Safety</MenuItem>
+          <MenuItem value="EMERGENCY">Emergency</MenuItem>
+          <MenuItem value="ACCIDENTS">Accidents</MenuItem>
+          <MenuItem value="ROAD_ISSUE">Road Issue</MenuItem>
+          <MenuItem value="GARBAGE">Garbage</MenuItem>
+          <MenuItem value="SAFETY">Safety</MenuItem>
+          <MenuItem value="WATER_SUPPLY">Water Supply</MenuItem>
+          <MenuItem value="ELECTRICITY">Electricity</MenuItem>
+          <MenuItem value="TRAFFIC">Traffic</MenuItem>
+          <MenuItem value="NOISE">Noise</MenuItem>
+          <MenuItem value="POLLUTION">Pollution</MenuItem>
+          <MenuItem value="ANIMAL_CONTROL">Animal Control</MenuItem>
+          <MenuItem value="FLOODING">Flooding</MenuItem>
+          <MenuItem value="FIRE_HAZARD">Fire Hazard</MenuItem>
+          <MenuItem value="VANDALISM">Vandalism</MenuItem>
+          <MenuItem value="INFRASTRUCTURE">Infrastructure</MenuItem>
+          <MenuItem value="OTHERS">Others</MenuItem>
         </TextField>
         <TextField
           margin="dense"
@@ -119,22 +266,71 @@ export default function ReportForm({ open, handleClose, handleSubmit }) {
           fullWidth
           select
           value={formData.priority}
-          onChange={handleChange}
+          onChange={handlePriorityChange}
         >
-          <MenuItem value="Low">Low</MenuItem>
-          <MenuItem value="Medium">Medium</MenuItem>
-          <MenuItem value="High">High</MenuItem>
+          <MenuItem value="LOW">Low Urgency</MenuItem>
+          <MenuItem value="MEDIUM">Medium Urgency</MenuItem>
+          <MenuItem value="HIGH">High Urgency</MenuItem>
+          <MenuItem value="CRITICAL">Critical Urgency</MenuItem>
         </TextField>
+
+        {/* Location Field */}
         <TextField
-          margin="dense"
           label="Location"
           name="location"
           fullWidth
+          margin="dense"
           value={formData.location}
-          onChange={handleChange}
+          InputProps={{ readOnly: true }}
         />
 
-        {/* 📁 Multiple Media Upload */}
+        {/* Button to open map */}
+        <Button
+          variant="outlined"
+          onClick={() => setOpenMap(true)}
+          sx={{ mt: 1, mb: 2 }}
+        >
+          Select Location
+        </Button>
+
+        {/* 🌍 Map Dialog (added here) */}
+        <Dialog open={openMap} onClose={() => setOpenMap(false)} fullWidth maxWidth="sm">
+          <DialogTitle>Select Location</DialogTitle>
+          <div style={{ height: "400px" }}>
+            <MapContainer
+              center={position}
+              zoom={13}
+              style={{ height: "100%", width: "100%" }}
+              whenCreated={(map) => {
+                map.on("click", (e) => setPosition(e.latlng));
+              }}
+            >
+              <TileLayer
+                attribution='© OpenStreetMap'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
+              <Marker
+                position={position}
+                draggable
+                eventHandlers={{
+                  dragend: (e) => setPosition(e.target.getLatLng()),
+                }}
+              />
+            </MapContainer>
+          </div>
+
+          <DialogActions sx={{ justifyContent: "space-between" }}>
+            <Button onClick={handleUseCurrentLocation}>Use My Current Location</Button>
+            <div>
+              <Button onClick={() => setOpenMap(false)}>Cancel</Button>
+              <Button variant="contained" onClick={handleConfirmLocation}>
+                Confirm
+              </Button>
+            </div>
+          </DialogActions>
+        </Dialog>
+
+        {/* Multiple Media Upload */}
         <Button variant="outlined" component="label" fullWidth sx={{ mt: 2 }}>
           Upload Media (Multiple)
           <input
@@ -185,7 +381,7 @@ export default function ReportForm({ open, handleClose, handleSubmit }) {
                       mx: "auto",
                     }}
                   >
-                    {/* ❌ Remove button */}
+                    {/* Remove button */}
                     <IconButton
                       size="small"
                       sx={{
@@ -212,7 +408,6 @@ export default function ReportForm({ open, handleClose, handleSubmit }) {
                       {file.name}
                     </Typography>
 
-                    {/* Image or Video Preview */}
                     {isImage && previewUrl && (
                       <img
                         src={previewUrl}
@@ -237,7 +432,6 @@ export default function ReportForm({ open, handleClose, handleSubmit }) {
                       />
                     )}
 
-                    {/* View Button */}
                     <Button
                       size="small"
                       variant="text"
