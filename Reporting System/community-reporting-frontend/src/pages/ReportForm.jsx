@@ -16,18 +16,9 @@ import {
 
 import CloseIcon from "@mui/icons-material/Close";
 import axios from "axios";
-import { MapContainer, TileLayer, Marker } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
-import L from "leaflet";
+import MapboxLocationPicker from "../components/MapboxLocationPicker";
 
 
-// Setup Leaflet default icon (important or map marker won't show)
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png",
-  iconUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png",
-  shadowUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png",
-});
 
 
 
@@ -36,11 +27,10 @@ L.Icon.Default.mergeOptions({
 
 export default function ReportForm({ open, handleClose, handleSubmit }) {
 
-    const [openMap, setOpenMap] = useState(false);
-    const [position, setPosition] = useState({ lat: 14.5995, lng: 120.9842 }); // Default: Manila
   
-
-    
+    // 🔹 Add this at the top with your other states
+    const [openMap, setOpenMap] = useState(false);
+    const [position, setPosition] = useState({ lat: 0, lng: 0 });
 
 
 
@@ -293,42 +283,18 @@ export default function ReportForm({ open, handleClose, handleSubmit }) {
           Select Location
         </Button>
 
-        {/* 🌍 Map Dialog (added here) */}
-        <Dialog open={openMap} onClose={() => setOpenMap(false)} fullWidth maxWidth="sm">
-          <DialogTitle>Select Location</DialogTitle>
-          <div style={{ height: "400px" }}>
-            <MapContainer
-              center={position}
-              zoom={13}
-              style={{ height: "100%", width: "100%" }}
-              whenCreated={(map) => {
-                map.on("click", (e) => setPosition(e.latlng));
-              }}
-            >
-              <TileLayer
-                attribution='© OpenStreetMap'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              />
-              <Marker
-                position={position}
-                draggable
-                eventHandlers={{
-                  dragend: (e) => setPosition(e.target.getLatLng()),
-                }}
-              />
-            </MapContainer>
-          </div>
+        {openMap && (
+        <MapboxLocationPicker
+            onSelect={(loc) =>
+            setFormData({
+                ...formData,
+                location: `${loc.address} (${loc.lat.toFixed(5)}, ${loc.lng.toFixed(5)})`,
+            })
+            }
+            onClose={() => setOpenMap(false)}
+        />
+        )}
 
-          <DialogActions sx={{ justifyContent: "space-between" }}>
-            <Button onClick={handleUseCurrentLocation}>Use My Current Location</Button>
-            <div>
-              <Button onClick={() => setOpenMap(false)}>Cancel</Button>
-              <Button variant="contained" onClick={handleConfirmLocation}>
-                Confirm
-              </Button>
-            </div>
-          </DialogActions>
-        </Dialog>
 
         {/* Multiple Media Upload */}
         <Button variant="outlined" component="label" fullWidth sx={{ mt: 2 }}>

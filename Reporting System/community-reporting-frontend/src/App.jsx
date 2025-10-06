@@ -8,6 +8,9 @@ import Navbar from "./components/Navbar";
 import DashboardNavbar from "./components/DashboardNavbar"; 
 import Reports from "./pages/Reports";
 import "leaflet/dist/leaflet.css";
+import 'mapbox-gl/dist/mapbox-gl.css';
+import "@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css";
+
 
 
 
