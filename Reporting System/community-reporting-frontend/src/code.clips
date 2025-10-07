@@ -314,3 +314,244 @@ export default function Dashboard() {
   );
   
 }
+
+
+
+====================================================================
+
+//this is the report form with responsive mobile design 
+import React, { useState, useEffect } from "react";
+import {
+  Container,
+  Paper,
+  Typography,
+  Button,
+  Box,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  IconButton,
+  Card,
+  CardContent,
+  Stack,
+  useMediaQuery,
+} from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import AddIcon from "@mui/icons-material/Add";
+import axios from "axios";
+import ReportForm from "./ReportForm";
+
+export default function Reports() {
+  const [reports, setReports] = useState([]);
+  const [open, setOpen] = useState(false);
+  const isMobile = useMediaQuery("(max-width:600px)");
+
+  useEffect(() => {
+    fetchReports();
+  }, []);
+
+  const fetchReports = () => {
+    axios
+      .get("http://localhost:8080/api/reports/my-reports")
+      .then((res) => setReports(res.data))
+      .catch((err) => console.error("Error fetching reports:", err));
+  };
+
+  const handleSubmit = (data) => {
+    axios
+      .post("http://localhost:8080/api/reports/create", data)
+      .then((res) => setReports((prev) => [res.data, ...prev]))
+      .catch((err) => console.error("Error creating report:", err));
+  };
+
+  const handleDelete = (id) => {
+    axios
+      .delete(`http://localhost:8080/api/reports/${id}`)
+      .then(() => setReports(reports.filter((r) => r.id !== id)))
+      .catch((err) => console.error("Delete failed:", err));
+  };
+
+  return (
+    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+      {/* Header */}
+      <Paper
+        elevation={3}
+        sx={{
+          p: { xs: 3, sm: 4 },
+          borderRadius: "16px",
+          bgcolor: "black",
+          color: "white",
+          textAlign: "center",
+        }}
+      >
+        <Typography
+          variant="h4"
+          fontWeight="bold"
+          sx={{ color: "yellow", mb: 2 }}
+        >
+          My Reports
+        </Typography>
+        <Typography variant="body1">
+          Here you can view, edit, and delete your submitted reports.
+        </Typography>
+      </Paper>
+
+      {/* Add New Report Button */}
+      <Box sx={{ mt: 3, textAlign: "right" }}>
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
+          sx={{
+            bgcolor: "black",
+            color: "yellow",
+            borderRadius: "12px",
+            "&:hover": { bgcolor: "yellow", color: "black" },
+          }}
+          onClick={() => setOpen(true)}
+        >
+          New Report
+        </Button>
+      </Box>
+
+      {/* Popup Form */}
+      <ReportForm
+        open={open}
+        handleClose={() => setOpen(false)}
+        handleSubmit={handleSubmit}
+      />
+
+      {/* Reports List */}
+      {isMobile ? (
+        // 📱 Mobile Card Layout
+        <Box sx={{ mt: 3 }}>
+          {reports.length > 0 ? (
+            reports.map((report) => (
+              <Card
+                key={report.id}
+                elevation={3}
+                sx={{
+                  mb: 2,
+                  borderRadius: "12px",
+                  bgcolor: "#111",
+                  color: "white",
+                  p: 1,
+                }}
+              >
+                <CardContent>
+                  <Typography
+                    variant="h6"
+                    sx={{ color: "yellow", fontWeight: "bold" }}
+                  >
+                    {report.title}
+                  </Typography>
+                  <Typography variant="body2" sx={{ mt: 0.5 }}>
+                    🏷 Category: {report.category}
+                  </Typography>
+                  <Typography variant="body2">
+                    📅 Date:{" "}
+                    {new Date(report.dateCreated).toLocaleDateString()}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      mt: 0.5,
+                      color:
+                        report.status === "Resolved" ? "lightgreen" : "orange",
+                    }}
+                  >
+                    ⚙ Status: {report.status || "Pending"}
+                  </Typography>
+
+                  {/* Actions */}
+                  <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
+                    <IconButton
+                      size="small"
+                      color="primary"
+                      sx={{
+                        bgcolor: "rgba(255,255,0,0.1)",
+                        "&:hover": { bgcolor: "yellow", color: "black" },
+                      }}
+                    >
+                      <EditIcon fontSize="small" />
+                    </IconButton>
+                    <IconButton
+                      size="small"
+                      color="error"
+                      onClick={() => handleDelete(report.id)}
+                      sx={{
+                        bgcolor: "rgba(255,0,0,0.1)",
+                        "&:hover": { bgcolor: "red", color: "white" },
+                      }}
+                    >
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
+                  </Stack>
+                </CardContent>
+              </Card>
+            ))
+          ) : (
+            <Typography align="center" sx={{ mt: 3, color: "text.secondary" }}>
+              No reports found.
+            </Typography>
+          )}
+        </Box>
+      ) : (
+        // 💻 Desktop Table Layout
+        <TableContainer component={Paper} sx={{ mt: 3 }}>
+          <Table>
+            <TableHead sx={{ bgcolor: "black" }}>
+              <TableRow>
+                {["Title", "Category", "Status", "Date Created", "Actions"].map(
+                  (head) => (
+                    <TableCell
+                      key={head}
+                      sx={{ color: "yellow", fontWeight: "bold" }}
+                    >
+                      {head}
+                    </TableCell>
+                  )
+                )}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {reports.length > 0 ? (
+                reports.map((report) => (
+                  <TableRow key={report.id}>
+                    <TableCell>{report.title}</TableCell>
+                    <TableCell>{report.category}</TableCell>
+                    <TableCell>{report.status || "Pending"}</TableCell>
+                    <TableCell>
+                      {new Date(report.dateCreated).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell>
+                      <IconButton color="primary">
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton
+                        color="error"
+                        onClick={() => handleDelete(report.id)}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={5} align="center">
+                    No reports found.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      )}
+    </Container>
+  );
+}
+

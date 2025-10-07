@@ -21,7 +21,9 @@ public class Report {
     private String location;
     private String media;
     private LocalDateTime createdAt;
-    
+    private String action;
+    private String status;
+    private int userId;
     
     
     
@@ -62,6 +64,18 @@ public class Report {
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
+
+    public void setAction(String action) {
+        this.action = action;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
     
     
     
@@ -95,4 +109,19 @@ public class Report {
     public LocalDateTime getCreatedAt() {
         return createdAt;
     } 
+
+    public String getAction() {
+        return action;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public int getUserId() {
+        return userId;
+    }
+    
+    
+    
 }

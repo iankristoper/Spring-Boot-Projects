@@ -9,6 +9,7 @@ package dev.projects.community.model;
 
 public class User {
     
+    private int userId;
     private String username;
     private String email;
     private String password;
@@ -37,6 +38,12 @@ public class User {
         return role;
     }
 
+    public int getUserId() {
+        return userId;
+    }
+    
+    
+
     
     
     public void setUsername(String username) {
@@ -57,6 +64,10 @@ public class User {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
     }
     
     

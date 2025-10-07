@@ -1,10 +1,12 @@
 
 package dev.projects.community.mapper;
 
+import dev.projects.community.dto.FetchReportDTO;
 import dev.projects.community.dto.ReportDTO;
 import dev.projects.community.model.Report;
 import dev.projects.community.repository.ReportRepository;
 import java.time.LocalDateTime;
+import java.util.List;
 import org.springframework.stereotype.Service;
 
 
@@ -26,7 +28,7 @@ public class ReportMapper {
     }
     
     
-    public Report reportMapperToCreateRepo(ReportDTO reportDTO) {
+    public Report reportMapperToCreate(ReportDTO reportDTO, int userId) {
         
         Report report = new Report();
         
@@ -38,8 +40,17 @@ public class ReportMapper {
         report.setMedia(reportDTO.getMedia());
         report.setCreatedAt(LocalDateTime.now());
         
+        report.setUserId(userId);
+        
         reportRepo.createReport(report); //pass to repository
         
         return report;
+    }
+    
+    
+    public List<FetchReportDTO> reportMapperToFetch(int userId) {
+        
+        return reportRepo.fetchReportsByUserId(userId);   
+        
     }
 }

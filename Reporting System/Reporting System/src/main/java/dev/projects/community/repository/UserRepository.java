@@ -26,6 +26,8 @@ public class UserRepository {
     }
     
     
+    
+    
     public void registerUser(User registration) {
         
         String checkUser = "SELECT COUNT(*) FROM users WHERE username = ?";
@@ -47,15 +49,19 @@ public class UserRepository {
     }
 
     
+    
+    
+    
     //this is for fetching data from the db then convert it as object
     public User findByUsername(String username) {
         
-        String sql = "SELECT username, password, role FROM users WHERE username = ?";
+        String sql = "SELECT id, username, password, role FROM users WHERE username = ?";
         
         return jdbc.queryForObject(sql, (rs, rowNum) -> {
             
             User user = new User();
             
+            user.setUserId(rs.getInt("id"));
             user.setUsername(rs.getString("username"));
             user.setPassword(rs.getString("password"));
             user.setRole(rs.getString("role"));
@@ -64,6 +70,13 @@ public class UserRepository {
             
         }, username);
         
+    }
+    
+    
+    public int findUserIdByUsername(String username) {
+        String sql = "SELECT id FROM users WHERE username = ?";
+        
+        return jdbc.queryForObject(sql, Integer.class, username);
     }
     
     

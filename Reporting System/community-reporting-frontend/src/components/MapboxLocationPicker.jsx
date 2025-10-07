@@ -34,8 +34,8 @@ export default function MapboxLocationPicker({ onSelect, onClose }) {
 
         const map = new mapboxgl.Map({
         container: mapContainer.current,
-        style: "mapbox://styles/mapbox/streets-v11",
-        center: [120.9842, 14.5995],
+        style: "mapbox://styles/mapbox/outdoors-v12",
+        center: [123.5942, 10.3195],
         zoom: 12,
         });
 
@@ -102,7 +102,7 @@ export default function MapboxLocationPicker({ onSelect, onClose }) {
             const address = data.features[0]?.place_name || "Unknown location";
 
             setSelectedLocation({ lng: longitude, lat: latitude, address });
-            new mapboxgl.Marker({ color: "#1976d2" })
+            new mapboxgl.Marker({ color: "#F44336" })
             .setLngLat([longitude, latitude])
             .addTo(mapRef.current);
         });

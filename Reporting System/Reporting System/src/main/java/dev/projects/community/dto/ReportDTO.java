@@ -19,7 +19,13 @@ public class ReportDTO {
     private PriorityLevel priority;
     private String location;
     private String media;
+    private String status;
+    private String action;
+    private int userId;
+
+ 
     
+
     
     //getters
 
@@ -48,6 +54,19 @@ public class ReportDTO {
     }
     
     
+    public String getStatus() {
+        return status;
+    }
+
+    public String getAction() {
+        return action;
+    }
+
+    public int getUserId() {
+        return userId;
+    }
+    
+    
     //setter
 
     public void setTitle(String title) {
@@ -73,6 +92,20 @@ public class ReportDTO {
     public void setMedia(String media) {
         this.media = media;
     }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public void setAction(String action) {
+        this.action = action;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+    
+    
     
     
 }
