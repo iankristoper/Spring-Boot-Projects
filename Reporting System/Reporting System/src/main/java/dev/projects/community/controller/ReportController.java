@@ -7,13 +7,13 @@ import dev.projects.community.mapper.ReportMapper;
 import dev.projects.community.model.Report;
 import dev.projects.community.model.User;
 import dev.projects.community.repository.UserRepository;
-import jakarta.servlet.http.HttpSession;
 import java.security.Principal;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -71,6 +71,24 @@ public class ReportController {
         
         
         return ResponseEntity.ok(reports);
+    }
+    
+    
+    @GetMapping("fetch/{id}")
+    public ResponseEntity<?> fetchPerReportController(@PathVariable("id") int id) {
+        
+        try {
+            FetchReportDTO report = reportMapper.reportMapperToFetchPerReport(id);
+            
+            if(report == null) {
+                return ResponseEntity.notFound().build();
+            }
+            
+            return ResponseEntity.ok(report);
+        } catch(Exception e) {
+            return ResponseEntity.status(500).build();
+        }
+        
     }
     
 }

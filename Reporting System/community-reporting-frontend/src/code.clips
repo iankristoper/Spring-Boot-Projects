@@ -555,3 +555,123 @@ export default function Reports() {
   );
 }
 
+===========================================================
+
+//this is mobile design for reports 
+
+ {/* Responsive Layout */}
+      {isMobile ? (
+        // 📱 Collapsible Mobile Card Layout
+        <Stack spacing={2} sx={{ mt: 3 }}>
+          {reports.length > 0 ? (
+            reports.map((report) => {
+              const isExpanded = expandedId === report.id;
+              return (
+                <Card
+                  key={report.id}
+                  elevation={3}
+                  sx={{
+                    borderRadius: "14px",
+                    bgcolor: "black",
+                    color: "white",
+                    border: "1px solid rgba(255, 255, 0, 0.3)",
+                    boxShadow: "0 2px 6px rgba(0,0,0,0.4)",
+                  }}
+                >
+                  <CardContent
+                    sx={{
+                      p: 2,
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                    }}
+                    onClick={() => toggleExpand(report.id)}
+                  >
+                    <Box>
+                      <Typography
+                        variant="subtitle1"
+                        fontWeight="bold"
+                        sx={{ color: "yellow" }}
+                      >
+                        {report.title}
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          color:
+                            report.status === "Resolved"
+                              ? "#00e676"
+                              : report.status === "Rejected"
+                              ? "#ff5252"
+                              : "orange",
+                        }}
+                      >
+                        {report.status || "Pending"}
+                      </Typography>
+                    </Box>
+                    <IconButton
+                      sx={{ color: "yellow" }}
+                      size="small"
+                      onClick={(e) => {
+                        e.stopPropagation(); //Prevents double toggle
+                        toggleExpand(report.id);
+                      }}
+                    >
+                      {isExpanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                    </IconButton>
+
+                  </CardContent>
+
+                  <Collapse in={isExpanded} timeout="auto" unmountOnExit>
+                    <CardContent sx={{ p: 2, pt: 0 }}>
+                      <Typography variant="body2" sx={{ color: "#f0f0f0" }}>
+                        🏷️ <b>Category:</b> {report.category}
+                      </Typography>
+                      <Typography variant="body2" sx={{ color: "#f0f0f0" }}>
+                        📅 <b>Date:</b>{" "}
+                        {new Date(report.dateCreated).toLocaleDateString()}
+                      </Typography>
+
+                      <Box
+                        sx={{
+                          mt: 1.5,
+                          display: "flex",
+                          justifyContent: "flex-end",
+                          gap: 1,
+                        }}
+                      >
+                        <IconButton
+                          size="small"
+                          sx={{
+                            color: "yellow",
+                            bgcolor: "rgba(255,255,255,0.08)",
+                            "&:hover": { bgcolor: "rgba(255,255,0,0.2)" },
+                          }}
+                        >
+                          <EditIcon fontSize="small" />
+                        </IconButton>
+                        <IconButton
+                          size="small"
+                          sx={{
+                            color: "#ff5252",
+                            bgcolor: "rgba(255,255,255,0.08)",
+                            "&:hover": { bgcolor: "rgba(255,82,82,0.2)" },
+                          }}
+                          onClick={() => handleDelete(report.id)}
+                        >
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </Box>
+                    </CardContent>
+                  </Collapse>
+                </Card>
+              );
+            })
+          ) : (
+            <Typography align="center" sx={{ mt: 2, color: "text.secondary" }}>
+              No reports found.
+            </Typography>
+          )}
+        </Stack>
+      ) : (
+

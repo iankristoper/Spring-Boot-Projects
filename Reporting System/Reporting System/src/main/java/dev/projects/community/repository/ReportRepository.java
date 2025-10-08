@@ -44,13 +44,14 @@ public class ReportRepository {
     
     public List<FetchReportDTO> fetchReportsByUserId(int userId) {
         
-        String sql = "SELECT title, category, status, createdAt FROM reports WHERE user_id =? ORDER BY createdAt DESC";
+        String sql = "SELECT id, title, category, status, createdAt FROM reports WHERE user_id =? ORDER BY createdAt DESC";
         
         
         return jdbc.query(sql, (rs, rowNum) -> {
             
             FetchReportDTO fetchReport = new FetchReportDTO();
             
+            fetchReport.setId(rs.getInt("id"));
             fetchReport.setTitle(rs.getString("title"));
             fetchReport.setCategory(rs.getString("category"));
             fetchReport.setStatus(rs.getString("status"));
@@ -60,6 +61,28 @@ public class ReportRepository {
             return fetchReport;
             
         }, userId);
+    }
+    
+    
+    
+    public FetchReportDTO fetchPerReport(int reportId) {
+        String sql = "SELECT id, title, category, status, createdAt, priority, location, media FROM reports WHERE id = ?";
+        
+        return jdbc.queryForObject(sql, (rs, rowNum) -> {
+            
+            FetchReportDTO fetchPerReport = new FetchReportDTO();
+            
+            fetchPerReport.setId(rs.getInt("id"));
+            fetchPerReport.setTitle(rs.getString("title"));
+            fetchPerReport.setCategory(rs.getString("category"));
+            fetchPerReport.setStatus(rs.getString("status"));
+            fetchPerReport.setDateCreated(rs.getString("createdAt"));
+            fetchPerReport.setPriority(rs.getString("priority"));
+            fetchPerReport.setLocation(rs.getString("location"));
+            fetchPerReport.setMedia(rs.getString("media"));
+            
+            return fetchPerReport;
+        }, reportId);
     }
     
 }

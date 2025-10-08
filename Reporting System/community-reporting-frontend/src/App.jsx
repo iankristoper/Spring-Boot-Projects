@@ -10,7 +10,7 @@ import Reports from "./pages/Reports";
 import "leaflet/dist/leaflet.css";
 import 'mapbox-gl/dist/mapbox-gl.css';
 import "@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css";
-
+import ViewReport from "./components/ViewReport";
 
 
 
@@ -52,10 +52,6 @@ const PrivateRoute = ({ children, role }) => {
 
 
 
-
-
-
-
 export default function App() {
   const location = useLocation();
   const isDashboard =
@@ -87,6 +83,16 @@ export default function App() {
           element={
             <PrivateRoute role="ROLE_USER">
               <Reports />
+            </PrivateRoute>
+          }
+        />
+
+        {/* ✅ Protected single report view */}
+        <Route
+          path="/reports/:id"
+          element={
+            <PrivateRoute role="ROLE_USER">
+              <ViewReport />
             </PrivateRoute>
           }
         />

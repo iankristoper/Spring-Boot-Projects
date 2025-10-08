@@ -79,11 +79,11 @@ export default function Dashboard() {
             Welcome back, User 👋
           </Typography>
         </Paper>
-
-        {/* Action Cards */}
+        
+        {/*Action cards*/}
         <Stack
           direction={{ xs: "column", sm: "row" }}
-          spacing={3}
+          spacing={{ xs: 2, sm: 3 }} // smaller spacing only for mobile
           justifyContent="center"
           sx={{ mt: 2 }}
         >
@@ -92,15 +92,15 @@ export default function Dashboard() {
               key={index}
               sx={{
                 flex: 1,
-                minWidth: { xs: "280px", sm: "0" },
-                maxWidth: { xs: "100%", sm: "320px" },
+                minWidth: { xs: "260px", sm: "0" }, // smaller on mobile
+                maxWidth: { xs: "100%", sm: "320px" }, // keep desktop same
                 alignSelf: "stretch",
               }}
             >
               <Paper
                 elevation={4}
                 sx={{
-                  p: { xs: 3, sm: 4 },
+                  p: { xs: 2, sm: 4 }, // smaller padding only on mobile
                   textAlign: "center",
                   borderRadius: "16px",
                   bgcolor: "background.paper",
@@ -112,13 +112,13 @@ export default function Dashboard() {
                   wordWrap: "break-word",
                 }}
               >
-                {card.icon}
+                {React.cloneElement(card.icon, { sx: { fontSize: { xs: 45, sm: 50 }, color: "yellow" } })} 
                 <Box sx={{ mt: 2, flexGrow: 1 }}>
                   <Typography
                     variant="h6"
                     sx={{
                       fontWeight: "bold",
-                      fontSize: { xs: "1rem", sm: "1.2rem" },
+                      fontSize: { xs: "1.2rem", sm: "1.2rem" }, // smaller only on mobile
                     }}
                   >
                     {card.title}
@@ -128,32 +128,32 @@ export default function Dashboard() {
                     sx={{
                       mt: 1,
                       mb: 2,
-                      fontSize: { xs: "0.85rem", sm: "0.95rem" },
+                      fontSize: { xs: "0.8rem", sm: "0.95rem" }, // smaller only on mobile
                     }}
                   >
                     {card.desc}
                   </Typography>
                 </Box>
-                  <Button
-                    variant="contained"
-                    sx={{
-                      bgcolor: "black",
-                      color: "yellow",
-                      borderRadius: "12px",
-                      textTransform: "none",
-                      fontWeight: "bold",
-                      py: 1,
-                    }}
-                    fullWidth
-                    onClick={() => navigate(card.path)}   // 👈 this is the key
-                  >
-                    {card.button}
-                  </Button>
-
+                <Button
+                  variant="contained"
+                  sx={{
+                    bgcolor: "black",
+                    color: "yellow",
+                    borderRadius: "12px",
+                    textTransform: "none",
+                    fontWeight: "bold",
+                    py: { xs: 0.8, sm: 1 }, // smaller only on mobile
+                  }}
+                  fullWidth
+                  onClick={() => navigate(card.path)}
+                >
+                  {card.button}
+                </Button>
               </Paper>
             </Box>
           ))}
         </Stack>
+
       </Container>
 
       {/* Footer pinned at bottom */}

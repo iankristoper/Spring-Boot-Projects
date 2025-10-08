@@ -1,7 +1,6 @@
 
 package dev.projects.community.dto;
 
-import java.time.LocalDateTime;
 import org.springframework.stereotype.Service;
 
 /**
@@ -14,10 +13,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class FetchReportDTO {
     
+    private int id;
     private String title;
     private String category;
     private String status;
     private String dateCreated;
+    private String priority;
+    private String location;
+    private String media;
     
     
     //getters and setters 
@@ -38,6 +41,22 @@ public class FetchReportDTO {
 
     public String getDateCreated() {
         return dateCreated;
+    }
+
+    public String getPriority() {
+        return priority;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public String getMedia() {
+        return media;
+    }
+
+    public int getId() {
+        return id;
     }
 
     
@@ -61,9 +80,21 @@ public class FetchReportDTO {
         this.dateCreated = dateCreated;
     }
 
-    
-    
-    
-    
+    public void setPriority(String priority) {
+        this.priority = priority;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public void setMedia(String media) {
+        this.media = media;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+ 
     
 }

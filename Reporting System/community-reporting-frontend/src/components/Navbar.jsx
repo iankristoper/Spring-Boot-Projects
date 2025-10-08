@@ -103,7 +103,7 @@ export default function Navbar() {
         <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
           {/* Title */}
           <Typography variant="h6" sx={{ fontWeight: 600, color: "yellow" }}>
-            Community Reporting App
+            {/*Community Reporting App*/}
           </Typography>
 
           {/* Desktop Links */}

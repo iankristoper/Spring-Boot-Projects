@@ -21,7 +21,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class ReportMapper {
     
+    
     private final ReportRepository reportRepo;
+    
+    
     
     public ReportMapper(ReportRepository reportRepo) {
         this.reportRepo = reportRepo;
@@ -50,7 +53,39 @@ public class ReportMapper {
     
     public List<FetchReportDTO> reportMapperToFetch(int userId) {
         
-        return reportRepo.fetchReportsByUserId(userId);   
+        // fetch raw reports
+        List<FetchReportDTO> reports = reportRepo.fetchReportsByUserId(userId);
+
+        // format category for each report
+        reports.forEach(report -> report.setCategory(formatCategory(report.getCategory())));
+
+        return reports; 
         
+    }
+    
+    
+    
+    public FetchReportDTO reportMapperToFetchPerReport(int reportId) {
+        
+        FetchReportDTO reports =  reportRepo.fetchPerReport(reportId);      
+        return reports;
+    }
+    
+    
+    
+    
+    
+    //function to modify data from db
+    private String formatCategory(String rawCategory) {
+        if (rawCategory == null || rawCategory.isEmpty()) return rawCategory;
+
+        String[] words = rawCategory.toLowerCase().split("_");
+        StringBuilder formatted = new StringBuilder();
+        for (String word : words) {
+            formatted.append(Character.toUpperCase(word.charAt(0)))
+                     .append(word.substring(1))
+                     .append(" ");
+        }
+        return formatted.toString().trim();
     }
 }
