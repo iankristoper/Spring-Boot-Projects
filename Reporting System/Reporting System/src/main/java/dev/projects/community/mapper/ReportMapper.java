@@ -73,6 +73,12 @@ public class ReportMapper {
     
     
     
+    public void updateReport(FetchReportDTO reportUpdate, int reportId) {
+        reportRepo.udpateReport(reportUpdate, reportId);
+    }
+    
+    
+    
     
     
     //function to modify data from db

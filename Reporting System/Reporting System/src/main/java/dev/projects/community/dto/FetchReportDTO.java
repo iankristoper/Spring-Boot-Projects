@@ -15,6 +15,7 @@ public class FetchReportDTO {
     
     private int id;
     private String title;
+    private String description;
     private String category;
     private String status;
     private String dateCreated;
@@ -59,6 +60,10 @@ public class FetchReportDTO {
         return id;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
     
 
     
@@ -94,6 +99,10 @@ public class FetchReportDTO {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
  
     

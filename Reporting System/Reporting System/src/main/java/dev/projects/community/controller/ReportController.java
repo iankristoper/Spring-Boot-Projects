@@ -1,5 +1,8 @@
 
+
 package dev.projects.community.controller;
+
+
 
 import dev.projects.community.dto.FetchReportDTO;
 import dev.projects.community.dto.ReportDTO;
@@ -15,6 +18,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -89,6 +93,22 @@ public class ReportController {
             return ResponseEntity.status(500).build();
         }
         
+    }
+    
+    
+    @PutMapping("/update/{id}")
+    public ResponseEntity<?> updateReportController(@PathVariable int id, @RequestBody FetchReportDTO reportUpdate) {
+        
+        try {
+            reportMapper.updateReport(reportUpdate, id);
+            return ResponseEntity.ok("Reports updated successfully");
+            
+            
+            
+        } catch(Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update report" + e.getMessage());
+        }
     }
     
 }

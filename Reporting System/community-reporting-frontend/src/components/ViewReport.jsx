@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import {
   Container,
@@ -8,42 +8,86 @@ import {
   CircularProgress,
   Divider,
   Button,
+  Stack,
+  Chip,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import axios from "axios";
+import mapboxgl from "mapbox-gl";
+import "mapbox-gl/dist/mapbox-gl.css";
+import { useNavigate } from "react-router-dom";
 
 
+
+
+
+mapboxgl.accessToken = "pk.eyJ1IjoiaWFuLWtyaXN0b3BlciIsImEiOiJjbHRvZ3YydmQwZjZmMmlwYWR3dnU0cnJ6In0.evUgsQMRg-M4C04LSGh0yA";
 
 export default function ViewReport() {
+  const navigate = useNavigate();
   const { id } = useParams();
   const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(true);
+  const mapContainerRef = useRef(null);
+
+  // Helper to format strings like WATER_SUPPLY → Water Supply
+  const formatLabel = (str) => {
+    if (!str) return "";
+    return str
+      .toLowerCase()
+      .split("_")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  };
+
+  // Helper to extract coordinates if present in parentheses
+  const extractCoordinates = (location) => {
+    if (!location) return { place: "", coords: "", lat: null, lng: null };
+    const match = location.match(/\(([-\d.]+),\s*([-\d.]+)\)/);
+    const coords = match ? `${match[1]}, ${match[2]}` : "";
+    const place = location.replace(/\s*\(.*?\)\s*/g, "").trim();
+    return {
+      place,
+      coords,
+      lat: match ? parseFloat(match[1]) : null,
+      lng: match ? parseFloat(match[2]) : null,
+    };
+  };
 
   useEffect(() => {
     setLoading(true);
-    // Fetch single report later
-  axios.get(`http://localhost:8080/api/reports/fetch/${id}`, {
-    withCredentials: true, // ✅ this sends your JSESSIONID cookie
-  })
-  .then(res => setReport(res.data))
-  .catch(err => console.error("Error fetching report:", err))
-  .finally(() => setLoading(false));
-
-
-
-    /* Placeholder for now
-    setTimeout(() => {
-      setReport({
-        id,
-        title: "Report Title",
-        description: "This is a placeholder description for report details.",
-        category: "Environment",
-        status: "Pending",
-        dateCreated: new Date().toISOString(),
-      });
-      setLoading(false);
-    }, 500);*/
+    axios
+      .get(`http://localhost:8080/api/reports/fetch/${id}`, {
+        withCredentials: true,
+      })
+      .then((res) => setReport(res.data))
+      .catch((err) => console.error("Error fetching report:", err))
+      .finally(() => setLoading(false));
   }, [id]);
+
+  const { place, coords, lat, lng } = extractCoordinates(report?.location);
+
+  // 🗺️ Initialize mini map after data loads
+  useEffect(() => {
+    if (!lat || !lng || !mapContainerRef.current) return;
+
+    const map = new mapboxgl.Map({
+      container: mapContainerRef.current,
+      style: "mapbox://styles/mapbox/outdoors-v12",
+      center: [lng, lat],
+      zoom: 12,
+      
+    });
+
+    // 🧭 Add fullscreen button (bottom-right by default)
+    const fullscreenControl = new mapboxgl.FullscreenControl();
+    map.addControl(fullscreenControl, "top-right");
+    new mapboxgl.Marker({ color: "#00e5ff" })
+      .setLngLat([lng, lat])
+      .addTo(map);
+
+    return () => map.remove();
+  }, [lat, lng]);
 
   if (loading) {
     return (
@@ -75,46 +119,153 @@ export default function ViewReport() {
           color: "white",
         }}
       >
+        {/* 🔙 Back Button */}
+
         <Button
           startIcon={<ArrowBackIcon />}
           sx={{
             color: "yellow",
-            mb: 2,
+            mb: 3,
             "&:hover": { bgcolor: "rgba(255,255,0,0.1)" },
           }}
-          href="/reports"
+          onClick={() => navigate("/reports")}
         >
           Back to Reports
         </Button>
 
-        <Typography variant="h4" fontWeight="bold" sx={{ color: "yellow" }}>
+        {/* 🏷️ Title */}
+        <Typography
+          variant="h4"
+          fontWeight="bold"
+          sx={{ color: "yellow", mb: 2 }}
+        >
           {report.title}
         </Typography>
-        <Divider sx={{ my: 2, bgcolor: "rgba(255,255,255,0.2)" }} />
 
-        <Typography variant="body1" sx={{ mb: 1 }}>
-          <b>Category:</b> {report.category}
-        </Typography>
-        <Typography variant="body1" sx={{ mb: 1 }}>
-          <b>Status:</b> {report.status}
-        </Typography>
-        <Typography variant="body1" sx={{ mb: 1 }}>
-          <b>Date Created:</b> {" "}
-          {new Date(report.dateCreated).toLocaleDateString()}
-        </Typography>
+        {/* 📊 Meta Information */}
+        <Stack
+          direction={{ xs: "column", sm: "row" }}
+          spacing={2}
+          sx={{ mb: 2, flexWrap: "wrap" }}
+        >
+          <Chip
+            label={`Category: ${formatLabel(report.category)}`}
+            sx={{
+              bgcolor: "rgba(255,255,255,0.1)",
+              color: "white",
+              border: "1px solid rgba(255,255,255,0.2)",
+            }}
+          />
+          <Chip
+            label={`Status: ${formatLabel(report.status)}`}
+            sx={{
+              bgcolor:
+                report.status === "Pending"
+                  ? "rgba(255,255,0,0.2)"
+                  : report.status === "Resolved"
+                  ? "rgba(0,255,0,0.2)"
+                  : "rgba(255,255,255,0.1)",
+              color: "white",
+              border: "1px solid rgba(255,255,255,0.2)",
+            }}
+          />
+          <Chip
+            label={`Priority: ${formatLabel(report.priority)}`}
+            sx={{
+              bgcolor:
+                report.priority === "HIGH"
+                  ? "rgba(255,0,0,0.2)"
+                  : report.priority === "MEDIUM"
+                  ? "rgba(255,165,0,0.2)"
+                  : "rgba(0,255,0,0.2)",
+              color: "white",
+              border: "1px solid rgba(255,255,255,0.2)",
+            }}
+          />
+        </Stack>
 
+        {/* 🗓️ Date */}
         <Typography
           variant="body2"
+          sx={{ mb: 2, color: "rgba(255,255,255,0.6)" }}
+        >
+          Reported on:{" "}
+          {new Date(report.dateCreated).toLocaleString(undefined, {
+            dateStyle: "medium",
+            timeStyle: "short",
+          })}
+        </Typography>
+
+        <Divider sx={{ my: 2, bgcolor: "rgba(255,255,255,0.2)" }} />
+
+        {/* 📍 Location + Coordinates */}
+        <Box sx={{ mb: 2 }}>
+          <Typography variant="body1" sx={{ mb: 0.5 }}>
+            <b>Location:</b> {place || "N/A"}
+          </Typography>
+          <Typography variant="body1">
+            <b>Coordinates:</b>{" "}
+            {coords ? (
+              <a
+                href={`https://www.google.com/maps?q=${coords}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: "#00e5ff", textDecoration: "none" }}
+              >
+                {coords}
+              </a>
+            ) : (
+              "N/A"
+            )}
+          </Typography>
+        </Box>
+
+        {/* 🗺️ Mini Map */}
+        {lat && lng && (
+          <Box
+            ref={mapContainerRef}
+            sx={{
+              mt: 2,
+              mb: 3,
+              height: 450,
+              borderRadius: "10px",
+              overflow: "hidden",
+              border: "1px solid rgba(255,255,255,0.1)",
+              boxShadow: "0 0 10px rgba(0,0,0,0.5)",
+            }}
+          />
+        )}
+
+        {/* 📝 Description */}
+        <Typography
+          variant="body1"
           sx={{
-            mt: 2,
             p: 2,
             bgcolor: "rgba(255,255,255,0.05)",
             borderRadius: "10px",
             whiteSpace: "pre-wrap",
           }}
         >
-          {report.description}
+          {report.description || "No description provided."}
         </Typography>
+
+        {/* 🖼️ Media */}
+        {report.media && (
+          <Box sx={{ mt: 3 }}>
+            <Typography variant="subtitle1" sx={{ mb: 1 }}>
+              Attached Media:
+            </Typography>
+            <img
+              src={report.media}
+              alt="report media"
+              style={{
+                maxWidth: "100%",
+                borderRadius: "10px",
+                border: "1px solid rgba(255,255,255,0.2)",
+              }}
+            />
+          </Box>
+        )}
       </Paper>
     </Container>
   );

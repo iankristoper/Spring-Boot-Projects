@@ -28,16 +28,40 @@ import ReportForm from "./ReportForm";
 import { useTheme } from "@mui/material/styles";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { useNavigate } from "react-router-dom";
-
+import EditReportForm from "../components/EditReport";
 
 
 
 export default function Reports() {
+  const [editOpen, setEditOpen] = useState(false);
+  const [selectedReport, setSelectedReport] = useState(null);
   const [reports, setReports] = useState([]);
   const [open, setOpen] = useState(false);
   const [expandedIds, setExpandedIds] = useState([]);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
+  // Function to open edit modal
+const handleEdit = (report) => {
+  setSelectedReport(report);
+  setEditOpen(true);
+};
+
+const handleUpdate = (updatedData) => {
+  axios
+    .put(`http://localhost:8080/api/reports/update/${updatedData.id}`, updatedData, {
+      withCredentials: true,
+    })
+    .then(() => {
+      // Update the local state manually
+      setReports((prev) =>
+        prev.map((r) => (r.id === updatedData.id ? { ...r, ...updatedData } : r))
+      );
+      setEditOpen(false);
+    })
+    .catch((err) => console.error("Update failed:", err));
+};
+
 
   useEffect(() => {
     fetchReports();
@@ -87,8 +111,6 @@ export default function Reports() {
 
 
   
-
-
 
 
 
@@ -145,7 +167,13 @@ export default function Reports() {
       {isMobile ? (
         <Stack spacing={2} sx={{ mt: 3 }}>
           {reports.length > 0 ? (
-            reports.map((report, index) => {
+            reports
+              .slice() // make a shallow copy to avoid mutating state
+              .sort((a, b) => {
+                if (a.status === "Resolved" && b.status !== "Resolved") return 1;
+                if (a.status !== "Resolved" && b.status === "Resolved") return -1;
+                return 0;
+              }).map((report, index) => {
               // ✅ Ensure each card has a unique ID or fallback key
               const reportKey = report.id || index;
               const isExpanded = expandedIds.includes(reportKey);
@@ -237,27 +265,34 @@ export default function Reports() {
                           <VisibilityIcon fontSize="small" />
                         </IconButton>
 
-                        <IconButton
-                          size="small"
-                          sx={{
-                            color: "yellow",
-                            bgcolor: "rgba(255,255,255,0.08)",
-                            "&:hover": { bgcolor: "rgba(255,255,0,0.2)" },
-                          }}
-                        >
-                          <EditIcon fontSize="small" />
-                        </IconButton>
-                        <IconButton
-                          size="small"
-                          sx={{
-                            color: "#ff5252",
-                            bgcolor: "rgba(255,255,255,0.08)",
-                            "&:hover": { bgcolor: "rgba(255,82,82,0.2)" },
-                          }}
-                          onClick={() => handleDelete(report.id)}
-                        >
-                          <DeleteIcon fontSize="small" />
-                        </IconButton>
+                        {report.status !== "Resolved" && (
+                        <>
+                          <IconButton
+                            size="small"
+                            sx={{
+                              color: "yellow",
+                              bgcolor: "rgba(255,255,255,0.08)",
+                              "&:hover": { bgcolor: "rgba(255,255,0,0.2)" },
+                            }}
+                            onClick={() => handleEdit(report)}
+                          >
+                            <EditIcon fontSize="small" />
+                          </IconButton>
+
+                          <IconButton
+                            size="small"
+                            sx={{
+                              color: "#ff5252",
+                              bgcolor: "rgba(255,255,255,0.08)",
+                              "&:hover": { bgcolor: "rgba(255,82,82,0.2)" },
+                            }}
+                            onClick={() => handleDelete(report.id)}
+                          >
+                            <DeleteIcon fontSize="small" />
+                          </IconButton>
+                        </>
+                      )}
+
                         
                       </Box>
                     </CardContent>
@@ -296,7 +331,13 @@ export default function Reports() {
             </TableHead>
             <TableBody>
               {reports.length > 0 ? (
-                reports.map((report) => (
+                reports
+                  .slice() // make a shallow copy to avoid mutating state
+                  .sort((a, b) => {
+                    if (a.status === "Resolved" && b.status !== "Resolved") return 1;
+                    if (a.status !== "Resolved" && b.status === "Resolved") return -1;
+                    return 0;
+                  }).map((report) => (
                   <TableRow key={report.id}>
                     <TableCell>{report.title}</TableCell>
                     <TableCell>{report.category}</TableCell>
@@ -311,15 +352,20 @@ export default function Reports() {
                       >
                         <VisibilityIcon />
                       </IconButton>
-                      <IconButton color="primary">
-                        <EditIcon />
-                      </IconButton>
-                      <IconButton
-                        color="error"
-                        onClick={() => handleDelete(report.id)}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
+                      {report.status !== "Resolved" && (
+                      <>
+                        <IconButton color="primary" onClick={() => handleEdit(report)}>
+                          <EditIcon />
+                        </IconButton>
+                        <IconButton
+                          color="error"
+                          onClick={() => handleDelete(report.id)}
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </>
+                    )}
+
                     </TableCell>
                   </TableRow>
                 ))
@@ -334,6 +380,14 @@ export default function Reports() {
           </Table>
         </TableContainer>
       )}
+
+      <EditReportForm
+        open={editOpen}
+        handleClose={() => setEditOpen(false)}
+        handleUpdate={handleUpdate}
+        reportData={selectedReport}
+      />
+
     </Container>
   );
 }

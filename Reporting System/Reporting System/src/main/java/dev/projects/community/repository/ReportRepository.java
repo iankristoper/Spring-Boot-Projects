@@ -3,6 +3,7 @@ package dev.projects.community.repository;
 
 import dev.projects.community.dto.FetchReportDTO;
 import dev.projects.community.model.Report;
+import java.util.ArrayList;
 import java.util.List;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -83,6 +84,62 @@ public class ReportRepository {
             
             return fetchPerReport;
         }, reportId);
+    }
+    
+    
+    
+    public void udpateReport(FetchReportDTO reportUpdate, int reportId) {
+        
+        // Start building the SQL query
+        StringBuilder sql = new StringBuilder("UPDATE reports SET ");
+        List<Object> params = new ArrayList<>();
+
+        
+        // Check each field – only update if it's not null
+        if (reportUpdate.getTitle() != null) {
+            sql.append("title = ?, ");
+            params.add(reportUpdate.getTitle());
+        }
+        
+        if (reportUpdate.getDescription() != null) {
+            sql.append("description = ?, ");
+            params.add(reportUpdate.getDescription());
+        }
+        
+        if (reportUpdate.getCategory() != null) {
+            sql.append("category = ?, ");
+            params.add(reportUpdate.getCategory());
+        }
+        
+        if (reportUpdate.getPriority() != null) {
+            sql.append("priority = ?, ");
+            params.add(reportUpdate.getPriority());
+        }
+        
+        if (reportUpdate.getLocation() != null) {
+            sql.append("location = ?, ");
+            params.add(reportUpdate.getLocation());
+        }
+        
+        if (reportUpdate.getMedia() != null) {
+            sql.append("media = ?, ");
+            params.add(reportUpdate.getMedia());
+        }
+
+        // If no fields to update, just return
+        if (params.isEmpty()) {
+            return;
+        }
+
+        // Remove the trailing comma and space
+        sql.setLength(sql.length() - 2);
+
+        // Add WHERE clause
+        sql.append(" WHERE id = ?");
+        params.add(reportId);
+
+        // Execute the update
+        jdbc.update(sql.toString(), params.toArray());
     }
     
 }
