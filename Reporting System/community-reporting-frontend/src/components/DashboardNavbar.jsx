@@ -11,9 +11,12 @@ import {
   ListItem,
   ListItemButton,
   ListItemText,
+  Divider,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { Link, useNavigate } from "react-router-dom";
+
+
 
 export default function DashboardNavbar() {
   const [mobileOpen, setMobileOpen] = React.useState(false);
@@ -24,12 +27,10 @@ export default function DashboardNavbar() {
   };
 
   const handleLogout = () => {
-    // clear session
     localStorage.removeItem("isAuthenticated");
     localStorage.removeItem("user");
     localStorage.removeItem("expiry");
-
-    navigate("/"); // redirect to home or login
+    navigate("/");
   };
 
   const navItems = [
@@ -47,17 +48,27 @@ export default function DashboardNavbar() {
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
+        backdropFilter: "blur(12px)",
+        bgcolor: "rgba(20,20,20,0.9)",
+        borderTopLeftRadius: "16px",
+        borderTopRightRadius: "16px",
+        boxShadow: "0 -2px 10px rgba(255, 255, 0, 0.1)",
       }}
     >
-      {/* App Title */}
       <Typography
         variant="h6"
-        sx={{ my: 2, fontWeight: 700, color: "yellow" }}
+        sx={{
+          my: 2,
+          fontWeight: 520,
+          color: "yellow",
+          textShadow: "0 0 6px rgba(255,255,0,0.6)",
+        }}
       >
         Dashboard Menu
       </Typography>
 
-      {/* Nav Buttons */}
+      <Divider sx={{ bgcolor: "rgba(255,255,255,0.1)" }} />
+
       <List>
         {navItems.map((item) => (
           <ListItem key={item.text} disablePadding sx={{ justifyContent: "center" }}>
@@ -67,20 +78,24 @@ export default function DashboardNavbar() {
               onClick={item.action || undefined}
               sx={{
                 textAlign: "center",
-                borderRadius: "20px",
-                bgcolor: "#0D0D0D",
+                borderRadius: "14px",
+                bgcolor: "rgba(255,255,255,0.05)",
                 color: "white",
                 m: 1,
+                transition: "all 0.25s ease",
                 "&:hover": {
                   bgcolor: "yellow",
                   color: "black",
                   fontWeight: "bold",
+                  transform: "translateY(-2px)",
+                  boxShadow: "0 2px 12px rgba(255,255,0,0.3)",
                 },
               }}
             >
               <ListItemText
                 primaryTypographyProps={{
                   textAlign: "center",
+                  fontWeight: 500,
                 }}
                 primary={item.text}
               />
@@ -89,8 +104,7 @@ export default function DashboardNavbar() {
         ))}
       </List>
 
-      {/* Footer */}
-      <Typography variant="caption" sx={{ mb: 1, color: "gray" }}>
+      <Typography variant="caption" sx={{ mb: 2, color: "gray" }}>
         © 2025 Reporting App
       </Typography>
     </Box>
@@ -100,33 +114,66 @@ export default function DashboardNavbar() {
     <>
       <AppBar
         position="sticky"
-        sx={{ bgcolor: "#0D0D0D", borderBottom: "1px solid yellow" }}
+        sx={{
+          background: "rgba(15, 15, 15, 0.85)",
+          backdropFilter: "blur(10px)",
+          borderBottom: "1px solid rgba(255,255,0,0.3)",
+          boxShadow: "0 2px 8px rgba(255,255,0,0.05)",
+        }}
       >
         <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
-          {/* Title */}
-          <Typography variant="h6" sx={{ fontWeight: 600, color: "yellow" }}>
-            {/*Community Reporting App*/}
+          {/* Logo / Title */}
+          <Typography
+            variant="h6"
+            sx={{
+              fontWeight: 700,
+              color: "yellow",
+              letterSpacing: "0.5px",
+              textShadow: "0 0 4px rgba(255,255,0,0.6)",
+            }}
+          >
+            {/** Reporting App*/}
           </Typography>
 
-          {/* Desktop Links */}
-          <Box sx={{ display: { xs: "none", sm: "block" } }}>
+          {/* Desktop Navigation */}
+          <Box sx={{ display: { xs: "none", sm: "flex" }, gap: 2 }}>
             {navItems.map((item) =>
               item.path ? (
                 <Button
                   key={item.text}
-                  color="inherit"
                   component={Link}
                   to={item.path}
-                  sx={{ fontWeight: "bold" }}
+                  sx={{
+                    color: "white",
+                    fontWeight: 300,
+                    textTransform: "none",
+                    borderRadius: "10px",
+                    transition: "all 0.25s ease",
+                    "&:hover": {
+                      bgcolor: "yellow",
+                      color: "black",
+                      boxShadow: "0 2px 10px rgba(255,255,0,0.3)",
+                    },
+                  }}
                 >
                   {item.text}
                 </Button>
               ) : (
                 <Button
                   key={item.text}
-                  color="inherit"
                   onClick={item.action}
-                  sx={{ fontWeight: "bold" }}
+                  sx={{
+                    color: "white",
+                    fontWeight: 300,
+                    textTransform: "none",
+                    borderRadius: "10px",
+                    transition: "all 0.25s ease",
+                    "&:hover": {
+                      bgcolor: "yellow",
+                      color: "black",
+                      boxShadow: "0 2px 10px rgba(255,255,0,0.3)",
+                    },
+                  }}
                 >
                   {item.text}
                 </Button>
@@ -134,11 +181,15 @@ export default function DashboardNavbar() {
             )}
           </Box>
 
-          {/* Mobile Hamburger */}
+          {/* Mobile Menu Button */}
           <IconButton
             color="inherit"
             edge="end"
-            sx={{ display: { sm: "none" }, fontWeight: "bold" }}
+            sx={{
+              display: { sm: "none" },
+              transition: "transform 0.2s ease",
+              "&:hover": { transform: "scale(1.1)" },
+            }}
             onClick={handleDrawerToggle}
           >
             <MenuIcon />
@@ -146,7 +197,7 @@ export default function DashboardNavbar() {
         </Toolbar>
       </AppBar>
 
-      {/* Drawer for Mobile */}
+      {/* Mobile Drawer */}
       <Drawer
         anchor="top"
         open={mobileOpen}
@@ -155,10 +206,11 @@ export default function DashboardNavbar() {
           display: { xs: "block", sm: "none" },
           "& .MuiDrawer-paper": {
             boxSizing: "border-box",
-            height: "40vh",
-            borderTopLeftRadius: "16px",
-            borderTopRightRadius: "16px",
-            padding: 2,
+            height: "45vh",
+            borderTopLeftRadius: "20px",
+            borderTopRightRadius: "20px",
+            borderTop: "1px solid rgba(255,255,0,0.3)",
+            overflow: "hidden",
           },
         }}
       >

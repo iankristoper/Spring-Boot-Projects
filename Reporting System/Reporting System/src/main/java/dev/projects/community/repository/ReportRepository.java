@@ -90,6 +90,33 @@ public class ReportRepository {
     
     
     
+    
+    public List<FetchReportDTO> fetchAll() {
+        
+        String sql = "SELECT * FROM reports";
+        
+        return jdbc.query(sql, (rs, rowNum) -> {
+            
+            FetchReportDTO fetchAllReport = new FetchReportDTO();
+            
+            fetchAllReport.setId(rs.getInt("id"));
+            fetchAllReport.setTitle(rs.getString("title"));
+            fetchAllReport.setDescription(rs.getString("description"));
+            fetchAllReport.setCategory(rs.getString("category"));
+            fetchAllReport.setStatus(rs.getString("status"));
+            fetchAllReport.setDateCreated(rs.getString("createdAt"));
+            fetchAllReport.setPriority(rs.getString("priority"));
+            fetchAllReport.setLocation(rs.getString("location"));
+            fetchAllReport.setMedia(rs.getString("media"));
+            
+            return fetchAllReport;
+        });
+    }
+    
+    
+    
+    
+    
     public void udpateReport(FetchReportDTO reportUpdate, int reportId) {
         
         // Start building the SQL query

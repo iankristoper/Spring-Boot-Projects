@@ -86,6 +86,13 @@ public class ReportMapper {
     
     
     
+    public List<FetchReportDTO> fetchAllMapper() {
+        return reportRepo.fetchAll();
+    }
+    
+    
+    
+    
     //function to modify data from db
     private String formatCategory(String rawCategory) {
         if (rawCategory == null || rawCategory.isEmpty()) return rawCategory;
@@ -99,4 +106,8 @@ public class ReportMapper {
         }
         return formatted.toString().trim();
     }
+    
+    
+    
+    
 }

@@ -21,7 +21,7 @@ import { useNavigate } from "react-router-dom";
 
 
 
-mapboxgl.accessToken = "pk.eyJ1IjoiaWFuLWtyaXN0b3BlciIsImEiOiJjbHRvZ3YydmQwZjZmMmlwYWR3dnU0cnJ6In0.evUgsQMRg-M4C04LSGh0yA";
+mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_KEY;
 
 export default function ViewReport() {
   const navigate = useNavigate();

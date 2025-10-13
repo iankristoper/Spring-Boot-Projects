@@ -11,8 +11,11 @@ import "leaflet/dist/leaflet.css";
 import 'mapbox-gl/dist/mapbox-gl.css';
 import "@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css";
 import ViewReport from "./components/ViewReport";
-
-
+import Analytics from "./pages/Analytics";
+import About from "./pages/About";
+import Contact from "./pages/Contact";
+import Feed from "./pages/Feed";
+import News from "./pages/News";
 
 
 
@@ -97,8 +100,61 @@ export default function App() {
           }
         />
 
+
+        {/* ✅ Protected reports */}
+        <Route
+          path="/analytics"
+          element={
+            <PrivateRoute role="ROLE_USER">
+              <Analytics />
+            </PrivateRoute>
+          }
+        />
+
+        {/* Public About */}
+        <Route
+          path="/about"
+          element={
+              <About />
+          }
+        />
+
+        {/* Public Contact */}
+        <Route
+          path="/contact"
+          element={
+              <Contact />
+          }
+        />
+
+
+        
+        {/* Proctected Feed*/}
+        <Route
+          path="/feed"
+          element={
+            <PrivateRoute role="ROLE_USER">
+              <Feed />
+            </PrivateRoute>
+          }
+        />
+
+        {/* Proctected News*/}
+        <Route
+          path="/news"
+          element={
+            <PrivateRoute role="ROLE_USER">
+              <News />
+            </PrivateRoute>
+          }
+        />
+        
+
+
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </>
+
+    
   );
 }

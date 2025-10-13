@@ -2,7 +2,7 @@ import React from "react";
 import { Container, Paper, Typography, Button, Box, Stack } from "@mui/material";
 import DynamicFeedIcon from "@mui/icons-material/DynamicFeed";
 import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
-import BarChartIcon from "@mui/icons-material/BarChart"; // ✅ replaced HistoryIcon
+import BarChartIcon from "@mui/icons-material/BarChart"; 
 import useSessionTimeout from "../hooks/useSessionTimeout";
 import { useNavigate } from "react-router-dom";
 
@@ -15,11 +15,11 @@ export default function Dashboard() {
 
   const cards = [
     {
-      title: "Feed",
-      desc: "Browse reports from the community.",
+      title: "News & Updates",
+      desc: "Browse the latest local news and updates.",
       icon: <DynamicFeedIcon sx={{ fontSize: 50, color: "yellow" }} />,
       button: "View Feed",
-      path: "/feed",
+      path: "/news",
     },
     {
       title: "My Reports",
@@ -48,12 +48,12 @@ export default function Dashboard() {
         flexDirection: "column",
       }}
     >
-      <Container maxWidth="lg" sx={{ mt: 4, mb: 4, flex: 1 }}>
+      <Container maxWidth="lg" sx={{ mt: 2, mb: 4, flex: 1 }}>
         {/* Header */}
         <Paper
           elevation={3}
           sx={{
-            p: { xs: 3, sm: 4 },
+            p: { xs: 2, sm: 2 },
             borderRadius: "16px",
             bgcolor: "black",
             color: "white",
@@ -155,16 +155,19 @@ export default function Dashboard() {
         </Stack>
       </Container>
 
-      {/* Footer */}
+      {/* Sticky Footer */}
       <Box
         component="footer"
         sx={{
-          textAlign: "center",
-          color: "text.secondary",
+          flexShrink: 0,
           py: 2,
+          textAlign: "center",
+          color: "gray",
+          fontSize: "0.8rem",
+          borderTop: "1px solid rgba(255,255,255,0.1)",
         }}
       >
-        <Typography variant="body2">© 2025 Community Reporting App</Typography>
+        © 2025 Community Reporting App — Building Smarter Communities
       </Box>
     </Box>
   );

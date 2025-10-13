@@ -12,8 +12,7 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 
 
 
-mapboxgl.accessToken =
-    "pk.eyJ1IjoiaWFuLWtyaXN0b3BlciIsImEiOiJjbHRvZ3YydmQwZjZmMmlwYWR3dnU0cnJ6In0.evUgsQMRg-M4C04LSGh0yA";
+mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_KEY;
 
 
 export default function MapboxLocationPicker({ onSelect, onClose }) {

@@ -58,6 +58,9 @@ public class ReportController {
     
     
     
+    
+    
+    
     @GetMapping("/fetch")
     public ResponseEntity<?> fetchReportController(Authentication authentication) {
         
@@ -79,6 +82,10 @@ public class ReportController {
     }
     
     
+    
+    
+    
+    
     @GetMapping("fetch/{id}")
     public ResponseEntity<?> fetchPerReportController(@PathVariable("id") int id) {
         
@@ -97,6 +104,33 @@ public class ReportController {
     }
     
     
+    
+    
+    
+    @GetMapping("/fetch_all")
+    public ResponseEntity<?> fetchAllReportController() {
+        
+        try {
+            List<FetchReportDTO> report = reportMapper.fetchAllMapper();
+            
+            if(report == null) {
+                return ResponseEntity.notFound().build();
+            }
+            
+            
+            return ResponseEntity.ok(report);
+            
+        } catch(Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to fetch all reports");
+        }
+    }
+    
+    
+    
+    
+    
+    
     @PutMapping("/update/{id}")
     public ResponseEntity<?> updateReportController(@PathVariable int id, @RequestBody FetchReportDTO reportUpdate) {
         
@@ -111,6 +145,9 @@ public class ReportController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update report" + e.getMessage());
         }
     }
+    
+    
+    
     
     
     

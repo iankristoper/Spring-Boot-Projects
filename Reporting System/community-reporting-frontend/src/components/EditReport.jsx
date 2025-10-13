@@ -191,6 +191,13 @@ export default function EditReportForm({ open, handleClose, reportData, handleUp
             <MenuItem value="WATER_SUPPLY">Water Supply</MenuItem>
             <MenuItem value="ELECTRICITY">Electricity</MenuItem>
             <MenuItem value="TRAFFIC">Traffic</MenuItem>
+            <MenuItem value="NOISE">Noise</MenuItem>
+            <MenuItem value="POLLUTION">Pollution</MenuItem>
+            <MenuItem value="ANIMAL_CONTROL">Animal Control</MenuItem>
+            <MenuItem value="FLOODING">Flooding</MenuItem>
+            <MenuItem value="FIRE_HAZARD">Fire Hazard</MenuItem>
+            <MenuItem value="VANDALISM">Vandalism</MenuItem>
+            <MenuItem value="INFRASTRUCTURE">Infrastructure</MenuItem>
             <MenuItem value="OTHERS">Others</MenuItem>
           </TextField>
 

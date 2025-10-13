@@ -2,7 +2,11 @@ import React from "react";
 import { Container, Typography, Button, Box } from "@mui/material";
 import { Link } from "react-router-dom";
 
+
+
 export default function Home() {
+
+  
   return (
     <Container sx={{ textAlign: "center", mt: 10 }}>
       <Typography variant="h3" gutterBottom color="secondary">
