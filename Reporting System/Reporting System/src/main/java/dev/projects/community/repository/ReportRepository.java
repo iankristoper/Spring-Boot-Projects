@@ -45,7 +45,7 @@ public class ReportRepository {
     
     public List<FetchReportDTO> fetchReportsByUserId(int userId) {
         
-        String sql = "SELECT id, title, category, status, createdAt FROM reports WHERE user_id =? ORDER BY createdAt DESC";
+        String sql = "SELECT id, title, description, category, status, createdAt FROM reports WHERE user_id =? ORDER BY createdAt DESC";
         
         
         return jdbc.query(sql, (rs, rowNum) -> {
@@ -54,6 +54,7 @@ public class ReportRepository {
             
             fetchReport.setId(rs.getInt("id"));
             fetchReport.setTitle(rs.getString("title"));
+            fetchReport.setDescription(rs.getString("description"));
             fetchReport.setCategory(rs.getString("category"));
             fetchReport.setStatus(rs.getString("status"));
             fetchReport.setDateCreated(rs.getString("createdAt"));
@@ -67,7 +68,7 @@ public class ReportRepository {
     
     
     public FetchReportDTO fetchPerReport(int reportId) {
-        String sql = "SELECT id, title, category, status, createdAt, priority, location, media FROM reports WHERE id = ?";
+        String sql = "SELECT id, title, description, category, status, createdAt, priority, location, media FROM reports WHERE id = ?";
         
         return jdbc.queryForObject(sql, (rs, rowNum) -> {
             
@@ -75,6 +76,7 @@ public class ReportRepository {
             
             fetchPerReport.setId(rs.getInt("id"));
             fetchPerReport.setTitle(rs.getString("title"));
+            fetchPerReport.setDescription(rs.getString("description"));
             fetchPerReport.setCategory(rs.getString("category"));
             fetchPerReport.setStatus(rs.getString("status"));
             fetchPerReport.setDateCreated(rs.getString("createdAt"));
@@ -140,6 +142,16 @@ public class ReportRepository {
 
         // Execute the update
         jdbc.update(sql.toString(), params.toArray());
+    }
+    
+    
+    public boolean deleteReportById(int id) {
+        
+        String sql = "DELETE FROM reports WHERE id = ?";
+        
+        int rowsAffected = jdbc.update(sql, id);
+        
+        return rowsAffected > 0;
     }
     
 }

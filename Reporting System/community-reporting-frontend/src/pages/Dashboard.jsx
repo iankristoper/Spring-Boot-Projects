@@ -2,10 +2,9 @@ import React from "react";
 import { Container, Paper, Typography, Button, Box, Stack } from "@mui/material";
 import DynamicFeedIcon from "@mui/icons-material/DynamicFeed";
 import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
-import HistoryIcon from "@mui/icons-material/History";
+import BarChartIcon from "@mui/icons-material/BarChart"; // ✅ replaced HistoryIcon
 import useSessionTimeout from "../hooks/useSessionTimeout";
 import { useNavigate } from "react-router-dom";
-
 
 
 
@@ -14,38 +13,39 @@ export default function Dashboard() {
 
   const navigate = useNavigate();
 
-
   const cards = [
     {
       title: "Feed",
       desc: "Browse reports from the community.",
       icon: <DynamicFeedIcon sx={{ fontSize: 50, color: "yellow" }} />,
       button: "View Feed",
-      path: "/feed",   // later you’ll create Feed.jsx
+      path: "/feed",
     },
     {
       title: "My Reports",
       desc: "Track and manage your submitted reports.",
       icon: <AssignmentTurnedInIcon sx={{ fontSize: 50, color: "yellow" }} />,
       button: "View Reports",
-      path: "/reports",   // 👈 this will open Reports.jsx
+      path: "/reports",
     },
     {
-      title: "Report History",
-      desc: "View past reports and resolutions.",
-      icon: <HistoryIcon sx={{ fontSize: 50, color: "yellow" }} />,
-      button: "View History",
-      path: "/history",
+      title: "Analytics",
+      desc: "View insights and data about reports.",
+      icon: <BarChartIcon sx={{ fontSize: 50, color: "yellow" }} />, // ✅ new icon
+      button: "View Analytics",
+      path: "/analytics", // ✅ new route (you can adjust later)
     },
   ];
 
 
+
+  
   return (
     <Box
       sx={{
-        minHeight: "100vh",        // take full height
+        minHeight: "100vh",
         display: "flex",
-        flexDirection: "column",   // stack content + footer
+        flexDirection: "column",
       }}
     >
       <Container maxWidth="lg" sx={{ mt: 4, mb: 4, flex: 1 }}>
@@ -79,11 +79,11 @@ export default function Dashboard() {
             Welcome back, User 👋
           </Typography>
         </Paper>
-        
-        {/*Action cards*/}
+
+        {/* Action cards */}
         <Stack
           direction={{ xs: "column", sm: "row" }}
-          spacing={{ xs: 2, sm: 3 }} // smaller spacing only for mobile
+          spacing={{ xs: 2, sm: 3 }}
           justifyContent="center"
           sx={{ mt: 2 }}
         >
@@ -92,15 +92,15 @@ export default function Dashboard() {
               key={index}
               sx={{
                 flex: 1,
-                minWidth: { xs: "260px", sm: "0" }, // smaller on mobile
-                maxWidth: { xs: "100%", sm: "320px" }, // keep desktop same
+                minWidth: { xs: "260px", sm: "0" },
+                maxWidth: { xs: "100%", sm: "320px" },
                 alignSelf: "stretch",
               }}
             >
               <Paper
                 elevation={4}
                 sx={{
-                  p: { xs: 2, sm: 4 }, // smaller padding only on mobile
+                  p: { xs: 2, sm: 4 },
                   textAlign: "center",
                   borderRadius: "16px",
                   bgcolor: "background.paper",
@@ -112,13 +112,13 @@ export default function Dashboard() {
                   wordWrap: "break-word",
                 }}
               >
-                {React.cloneElement(card.icon, { sx: { fontSize: { xs: 45, sm: 50 }, color: "yellow" } })} 
+                {React.cloneElement(card.icon, { sx: { fontSize: { xs: 45, sm: 50 }, color: "yellow" } })}
                 <Box sx={{ mt: 2, flexGrow: 1 }}>
                   <Typography
                     variant="h6"
                     sx={{
                       fontWeight: "bold",
-                      fontSize: { xs: "1.2rem", sm: "1.2rem" }, // smaller only on mobile
+                      fontSize: { xs: "1.2rem", sm: "1.2rem" },
                     }}
                   >
                     {card.title}
@@ -128,7 +128,7 @@ export default function Dashboard() {
                     sx={{
                       mt: 1,
                       mb: 2,
-                      fontSize: { xs: "0.8rem", sm: "0.95rem" }, // smaller only on mobile
+                      fontSize: { xs: "0.8rem", sm: "0.95rem" },
                     }}
                   >
                     {card.desc}
@@ -142,7 +142,7 @@ export default function Dashboard() {
                     borderRadius: "12px",
                     textTransform: "none",
                     fontWeight: "bold",
-                    py: { xs: 0.8, sm: 1 }, // smaller only on mobile
+                    py: { xs: 0.8, sm: 1 },
                   }}
                   fullWidth
                   onClick={() => navigate(card.path)}
@@ -153,10 +153,9 @@ export default function Dashboard() {
             </Box>
           ))}
         </Stack>
-
       </Container>
 
-      {/* Footer pinned at bottom */}
+      {/* Footer */}
       <Box
         component="footer"
         sx={{
@@ -165,9 +164,7 @@ export default function Dashboard() {
           py: 2,
         }}
       >
-        <Typography variant="body2">
-          © 2025 Community Reporting App
-        </Typography>
+        <Typography variant="body2">© 2025 Community Reporting App</Typography>
       </Box>
     </Box>
   );

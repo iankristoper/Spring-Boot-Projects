@@ -17,6 +17,10 @@ import {
   CardContent,
   Stack,
   Collapse,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions, 
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -33,6 +37,11 @@ import EditReportForm from "../components/EditReport";
 
 
 export default function Reports() {
+
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [reportToDelete, setReportToDelete] = useState(null);
+
+
   const [editOpen, setEditOpen] = useState(false);
   const [selectedReport, setSelectedReport] = useState(null);
   const [reports, setReports] = useState([]);
@@ -41,38 +50,69 @@ export default function Reports() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
+
+
+  
   // Function to open edit modal
-const handleEdit = (report) => {
-  setSelectedReport(report);
-  setEditOpen(true);
-};
-
-const handleUpdate = (updatedData) => {
-  axios
-    .put(`http://localhost:8080/api/reports/update/${updatedData.id}`, updatedData, {
-      withCredentials: true,
-    })
-    .then(() => {
-      // Update the local state manually
-      setReports((prev) =>
-        prev.map((r) => (r.id === updatedData.id ? { ...r, ...updatedData } : r))
-      );
-      setEditOpen(false);
-    })
-    .catch((err) => console.error("Update failed:", err));
-};
+  const handleEdit = (report) => {
+    setSelectedReport(report);
+    setEditOpen(true);
+  };
 
 
-  useEffect(() => {
-    fetchReports();
-  }, []);
+  const handleUpdate = (updatedData) => {
+    axios
+      .put(`http://localhost:8080/api/reports/update/${updatedData.id}`, updatedData, {
+        withCredentials: true,
+      })
+      .then(() => {
+        // ✅ Instantly update the local list (fast UI response)
+        setReports((prev) =>
+          prev.map((r) => (r.id === updatedData.id ? { ...r, ...updatedData } : r))
+        );
 
+        // ✅ Then refresh in the background (keep backend and frontend in sync)
+        fetchReports();
+
+        setEditOpen(false);
+      })
+      .catch((err) => console.error("Update failed:", err));
+  };
+
+
+
+  const [loading, setLoading] = useState(false);
+
+  // ✅ Fetch reports (with loading indicator)
   const fetchReports = () => {
+    setLoading(true);
     axios
       .get("http://localhost:8080/api/reports/fetch", { withCredentials: true })
-      .then((res) => setReports(res.data))
-      .catch((err) => console.error("Error fetching reports:", err));
+      .then((res) => {
+        setReports(res.data);
+      })
+      .catch((err) => {
+        console.error("Error fetching reports:", err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
+
+  useEffect(() => {
+    fetchReports(); // initial load
+
+    // 🔁 Auto-refresh every 5 seconds
+    const interval = setInterval(() => {
+      fetchReports();
+    }, 500);
+
+    // Cleanup on unmount
+    return () => clearInterval(interval);
+  }, []);
+
+
+
 
   const handleSubmit = (data) => {
     axios
@@ -80,19 +120,34 @@ const handleUpdate = (updatedData) => {
         withCredentials: true,
       })
       .then((res) => {
+        // ✅ Add new item instantly to local list
         setReports((prev) => [res.data, ...prev]);
+
+        // ✅ Refresh background to ensure perfect sync
+        fetchReports();
+
+        setOpen(false);
       })
       .catch((err) => console.error("Error creating report:", err));
   };
 
+
   const handleDelete = (id) => {
     axios
-      .delete(`http://localhost:8080/api/reports/${id}`)
+      .delete(`http://localhost:8080/api/reports/delete/${id}`, {
+        withCredentials: true,
+      })
       .then(() => {
-        setReports(reports.filter((r) => r.id !== id));
+        // ✅ Instantly remove from UI
+        setReports((prevReports) => prevReports.filter((r) => r.id !== id));
+
+        // ✅ Then re-fetch quietly to ensure backend confirmation
+        fetchReports();
       })
       .catch((err) => console.error("Delete failed:", err));
   };
+
+
 
   const toggleExpand = (id) => {
     setExpandedIds((prev) =>
@@ -108,10 +163,18 @@ const handleUpdate = (updatedData) => {
     navigate(`/reports/${id}`);
   };
 
+  const confirmDelete = (id) => {
+    setReportToDelete(id);
+    setConfirmDialogOpen(true);
+  };
 
-
-  
-
+  const handleConfirmDelete = () => {
+    if (reportToDelete) {
+      handleDelete(reportToDelete);
+      setConfirmDialogOpen(false);
+      setReportToDelete(null);
+    }
+  };
 
 
   return (
@@ -265,20 +328,8 @@ const handleUpdate = (updatedData) => {
                           <VisibilityIcon fontSize="small" />
                         </IconButton>
 
-                        {report.status !== "Resolved" && (
-                        <>
-                          <IconButton
-                            size="small"
-                            sx={{
-                              color: "yellow",
-                              bgcolor: "rgba(255,255,255,0.08)",
-                              "&:hover": { bgcolor: "rgba(255,255,0,0.2)" },
-                            }}
-                            onClick={() => handleEdit(report)}
-                          >
-                            <EditIcon fontSize="small" />
-                          </IconButton>
-
+                        {report.status === "Resolved" ? (
+                          // 🟢 Show only Delete for resolved
                           <IconButton
                             size="small"
                             sx={{
@@ -286,14 +337,38 @@ const handleUpdate = (updatedData) => {
                               bgcolor: "rgba(255,255,255,0.08)",
                               "&:hover": { bgcolor: "rgba(255,82,82,0.2)" },
                             }}
-                            onClick={() => handleDelete(report.id)}
+                            onClick={() => confirmDelete(report.id)}
                           >
                             <DeleteIcon fontSize="small" />
                           </IconButton>
-                        </>
-                      )}
+                          ) : (
+                          // 🟡 Show Edit + Delete for others
+                          <>
+                            <IconButton
+                              size="small"
+                              sx={{
+                                color: "yellow",
+                                bgcolor: "rgba(255,255,255,0.08)",
+                                "&:hover": { bgcolor: "rgba(255,255,0,0.2)" },
+                              }}
+                              onClick={() => handleEdit(report)}
+                            >
+                              <EditIcon fontSize="small" />
+                            </IconButton>
 
-                        
+                            <IconButton
+                              size="small"
+                              sx={{
+                                color: "#ff5252",
+                                bgcolor: "rgba(255,255,255,0.08)",
+                                "&:hover": { bgcolor: "rgba(255,82,82,0.2)" },
+                              }}
+                              onClick={() => confirmDelete(report.id)}
+                            >
+                              <DeleteIcon fontSize="small" />
+                            </IconButton>
+                          </>
+                        )}                  
                       </Box>
                     </CardContent>
                   </Collapse>
@@ -352,15 +427,18 @@ const handleUpdate = (updatedData) => {
                       >
                         <VisibilityIcon />
                       </IconButton>
-                      {report.status !== "Resolved" && (
+                    {report.status === "Resolved" ? (
+                      // 🟢 Only show Delete button when resolved
+                      <IconButton color="error" onClick={() => confirmDelete(report.id)}>
+                        <DeleteIcon />
+                      </IconButton>
+                    ) : (
+                      // 🟡 Show Edit + Delete for others
                       <>
                         <IconButton color="primary" onClick={() => handleEdit(report)}>
                           <EditIcon />
                         </IconButton>
-                        <IconButton
-                          color="error"
-                          onClick={() => handleDelete(report.id)}
-                        >
+                        <IconButton color="error" onClick={() => confirmDelete(report.id)}>
                           <DeleteIcon />
                         </IconButton>
                       </>
@@ -380,6 +458,64 @@ const handleUpdate = (updatedData) => {
           </Table>
         </TableContainer>
       )}
+
+      <Dialog
+        open={confirmDialogOpen}
+        onClose={() => setConfirmDialogOpen(false)}
+        PaperProps={{
+          sx: {
+            bgcolor: "black",
+            color: "white",
+            borderRadius: "16px",
+       
+          },
+        }}
+      >
+        <DialogTitle
+          sx={{ color: "red", fontWeight: "bold", textAlign: "center" }}
+        >
+          Confirm Deletion
+        </DialogTitle>
+
+        <DialogContent sx={{ textAlign: "center", pb: 0 }}>
+          <Typography sx={{ color: "#f0f0f0" }}>
+            Are you sure you want to delete this report? This action cannot be undone.
+          </Typography>
+        </DialogContent>
+
+        <DialogActions sx={{ justifyContent: "center", pb: 2, gap: 2 }}>
+          <Button
+            onClick={() => setConfirmDialogOpen(false)}
+            variant="contained"
+            sx={{
+              borderRadius: 2,
+              px: 3,
+              fontWeight: "bold",
+              backgroundColor: "#333",
+              color: "white",
+              "&:hover": { backgroundColor: "#555" },
+            }}
+          >
+            Cancel
+          </Button>
+
+          <Button
+            onClick={handleConfirmDelete}
+            variant="contained"
+            sx={{
+              borderRadius: 2,
+              px: 4,
+              fontWeight: "bold",
+              backgroundColor: "#FFFF00",
+              color: "#000",
+              
+            }}
+          >
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+
 
       <EditReportForm
         open={editOpen}

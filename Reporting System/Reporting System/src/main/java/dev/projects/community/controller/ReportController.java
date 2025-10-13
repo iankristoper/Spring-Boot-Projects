@@ -15,6 +15,7 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -108,6 +109,21 @@ public class ReportController {
         } catch(Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update report" + e.getMessage());
+        }
+    }
+    
+    
+    
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<?> deleteReportController(@PathVariable int id) {
+        
+        try {
+            reportMapper.deleteReport(id);
+            return ResponseEntity.ok("Report deleted successfully");
+            
+        } catch(Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to delete report" + e.getMessage());
         }
     }
     

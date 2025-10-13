@@ -79,6 +79,11 @@ public class ReportMapper {
     
     
     
+    public void deleteReport(int reportId) {
+        reportRepo.deleteReportById(reportId);
+    }
+    
+    
     
     
     //function to modify data from db
