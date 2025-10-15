@@ -16,6 +16,8 @@ import About from "./pages/About";
 import Contact from "./pages/Contact";
 import Feed from "./pages/Feed";
 import News from "./pages/News";
+import AdminHome from "./pages/admin/AdminHome";
+import AdminManageReports from "./pages/admin/AdminManageReports";
 
 
 
@@ -23,6 +25,7 @@ import News from "./pages/News";
 
 
 const PrivateRoute = ({ children, role }) => {
+  
   const isAuthenticated = localStorage.getItem("isAuthenticated") === "true";
   const expiry = localStorage.getItem("expiry");
   const user = JSON.parse(localStorage.getItem("user"));
@@ -148,6 +151,32 @@ export default function App() {
             </PrivateRoute>
           }
         />
+
+
+
+
+
+        {/*  ADMIN Route */}
+
+        <Route
+          path="/admin"
+          element={
+            <PrivateRoute role="ROLE_ADMIN">
+              <AdminHome />
+            </PrivateRoute>
+          }
+        />
+
+
+        <Route
+          path="/admin/manage-reports"
+          element={
+            <PrivateRoute role="ROLE_ADMIN">
+              <AdminManageReports />
+            </PrivateRoute>
+          }
+        />
+
         
 
 

@@ -16,7 +16,7 @@ import {
 import MenuIcon from "@mui/icons-material/Menu";
 import { Link } from "react-router-dom";
 import HomeIcon from "@mui/icons-material/Home";
-
+import LocationCityIcon from "@mui/icons-material/LocationCity";
 
 
 
@@ -54,8 +54,8 @@ export default function Navbar() {
       <Typography
         variant="h6"
         sx={{
-          my: 2,
-          fontWeight: 600,
+          my: 4,
+          fontWeight: 500,
           color: "yellow",
           display: "flex",
           alignItems: "center",
@@ -106,7 +106,7 @@ export default function Navbar() {
 
       {/* Footer */}
       <Typography variant="caption" sx={{ mb: 2, color: "gray" }}>
-        © 2025 Reporting App
+        © 2025 Developed by Noob
       </Typography>
     </Box>
   );
@@ -125,7 +125,7 @@ export default function Navbar() {
         <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
           {/* Title / Logo */}
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <HomeIcon sx={{ color: "yellow" }} />
+            <LocationCityIcon  sx={{ color: "yellow", fontSize: 28 }} />
             <Typography
               variant="h6"
               sx={{

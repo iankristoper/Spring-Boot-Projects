@@ -35,7 +35,7 @@ export default function DashboardNavbar() {
 
   const navItems = [
     { text: "Home", path: "/dashboard" },
-    { text: "Profile", path: "/" },
+    { text: "Profile", path: "/dashboard" },
     { text: "Logout", action: handleLogout },
   ];
 
@@ -58,8 +58,8 @@ export default function DashboardNavbar() {
       <Typography
         variant="h6"
         sx={{
-          my: 2,
-          fontWeight: 520,
+          my: 4,
+          fontWeight: 500,
           color: "yellow",
           textShadow: "0 0 6px rgba(255,255,0,0.6)",
         }}

@@ -3,8 +3,6 @@ import { Container, TextField, Button, Typography, Box, Paper, Alert } from "@mu
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
 
-
-
 export default function Login() {
   const [form, setForm] = useState({ username: "", password: "" });
   const [error, setError] = useState("");
@@ -38,12 +36,28 @@ export default function Login() {
         { withCredentials: true }
       );
 
-      // Save authenticated state
+      // Expected backend response example:
+      // {
+      //   "username": "admin",
+      //   "role": "ROLE_ADMIN",
+      //   "token": "..."
+      // }
+
+      const userData = response.data;
+
+      // Save session data
       localStorage.setItem("isAuthenticated", "true");
-      localStorage.setItem("user", JSON.stringify(response.data));
+      localStorage.setItem("user", JSON.stringify(userData));
       localStorage.setItem("expiry", Date.now() + 3600000); // 1 hour
 
-      navigate("/dashboard");
+      // Redirect based on role
+      if (userData.role === "ROLE_ADMIN") {
+        navigate("/admin"); // redirect to admin home
+      } else if (userData.role === "ROLE_USER") {
+        navigate("/dashboard"); // normal user dashboard
+      } else {
+        navigate("/"); // fallback
+      }
     } catch (err) {
       console.error("❌ Login Failed:", err);
       setError("Invalid username or password");
