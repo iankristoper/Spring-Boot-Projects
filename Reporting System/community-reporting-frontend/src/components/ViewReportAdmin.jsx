@@ -128,7 +128,7 @@ export default function ViewReport() {
             mb: 3,
             "&:hover": { bgcolor: "rgba(255,255,0,0.1)" },
           }}
-          onClick={() => navigate("/reports")}
+          onClick={() => navigate("/admin/manage-reports")}
         >
           Back to Reports
         </Button>

@@ -21,6 +21,7 @@ import {
   Snackbar,
   Alert,
   TablePagination,
+  Dialog, DialogTitle, DialogContent, DialogActions,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
@@ -33,8 +34,17 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
 import "bootstrap/dist/css/bootstrap.min.css";
+import ArchiveIcon from "@mui/icons-material/Archive";
+
+
+
 
 export default function AdminManageReports() {
+
+  const [archiveDialog, setArchiveDialog] = useState({ open: false, reportId: null });
+const [archiveSuccessAlert, setArchiveSuccessAlert] = useState(false);
+
+
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -50,6 +60,103 @@ export default function AdminManageReports() {
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const previousIdsRef = useRef([]);
+
+  const [resolveSuccessAlert, setResolveSuccessAlert] = useState(false);
+
+  const [deleteDialog, setDeleteDialog] = useState({
+    open: false,
+    reportId: null,
+    password: "",
+  });
+
+
+  const openDeleteConfirm = (id) => {
+    setDeleteDialog({ open: true, reportId: id, password: "" });
+  };
+
+  const closeDeleteDialog = () => {
+    setDeleteDialog({ open: false, reportId: null, password: "" });
+  };
+
+
+
+
+
+
+  // New state for confirmation dialog
+  const [confirmDialog, setConfirmDialog] = useState({
+    open: false,
+    reportId: null,
+  });
+
+  // Open confirmation dialog
+  const openConfirmResolve = (id) => {
+    setConfirmDialog({ open: true, reportId: id });
+  };
+
+  // Close dialog
+  const closeConfirmDialog = () => {
+    setConfirmDialog({ open: false, reportId: null });
+  };
+
+  // Confirm and call API
+  const confirmResolve = () => {
+    const id = confirmDialog.reportId;
+    axios.put(
+      `http://localhost:8080/api/admin/update/report-status/${id}`,
+      { status: "Resolved" },
+      { withCredentials: true }  // 🔥 Important
+    )
+    .then((res) => {
+      console.log("Response:", res.data);
+      setReports((prevReports) =>
+        prevReports.map((r) => (r.id === id ? { ...r, status: "Resolved" } : r))
+      );
+      closeConfirmDialog();
+      setResolveSuccessAlert(true); // ✅ Show success Snackbar
+    })
+    .catch((err) => {
+      console.error("Failed to resolve report", err);
+      closeConfirmDialog();
+    });
+  };
+
+
+
+
+
+
+  const openArchiveConfirm = (id) => {
+  setArchiveDialog({ open: true, reportId: id });
+};
+
+const closeArchiveDialog = () => {
+  setArchiveDialog({ open: false, reportId: null });
+};
+
+const confirmArchive = () => {
+  const id = archiveDialog.reportId;
+  axios
+    .put(
+      `http://localhost:8080/api/admin/update/archive-status/${id}`,
+      {},
+      { withCredentials: true }
+    )
+    .then(() => {
+      setReports((prevReports) =>
+        prevReports.map((r) =>
+          r.id === id ? { ...r, status: "Archived" } : r
+        )
+      );
+      closeArchiveDialog();
+      setArchiveSuccessAlert(true);
+    })
+    .catch((err) => {
+      console.error("Failed to archive report", err);
+      closeArchiveDialog();
+    });
+};
+
 
   useEffect(() => {
     const fetchReports = () => {
@@ -75,9 +182,21 @@ export default function AdminManageReports() {
     };
 
     fetchReports();
-    const interval = setInterval(fetchReports, 500);
+    const interval = setInterval(fetchReports, 5000);
     return () => clearInterval(interval);
   }, []);
+
+
+
+
+  const handleViewDetails = (id) => {
+    // Navigate to a new page that will show this report's full details
+    navigate(`/admin/reports/${id}`);
+  };
+
+
+
+
 
   const handleDelete = (id) => {
     if (window.confirm("Are you sure you want to delete this report?")) {
@@ -88,6 +207,36 @@ export default function AdminManageReports() {
     }
   };
 
+
+
+
+  const confirmDelete = () => {
+    const { reportId, password } = deleteDialog;
+
+    axios
+      .delete(`http://localhost:8080/api/admin/report/delete/${reportId}`, {
+        data: { password },          // send password in request body
+        withCredentials: true,       // ensure cookies/session are included
+      })
+      .then((res) => {
+        console.log(res.data);
+        setReports((prevReports) =>
+          prevReports.filter((r) => r.id !== reportId)
+        );
+        closeDeleteDialog();
+      })
+      .catch((err) => {
+        if (err.response?.status === 401) {
+          alert("Incorrect password. Please try again.");
+        } else {
+          console.error("Failed to delete report", err);
+        }
+      });
+  };
+
+
+
+
   const handleVerify = (id) => {
     axios
       .put(`http://localhost:8080/api/reports/verify/${id}`)
@@ -96,6 +245,15 @@ export default function AdminManageReports() {
       )
       .catch((err) => console.error("Failed to verify report", err));
   };
+
+
+
+  const handleVerifySoon = (id) => {
+    navigate(`/admin/reports/verify/${id}`);
+  };
+  
+
+
 
   const handleResolve = (id) => {
     axios
@@ -125,13 +283,13 @@ export default function AdminManageReports() {
   const getPriorityColor = (priority) => {
     switch (priority) {
       case "CRITICAL":
-        return "#ff1744"; // red
+        return "#ff2525ff"; // red
       case "HIGH":
-        return "#ffd900ff"; // orange
+        return "#ffac30ff"; // orange
       case "MEDIUM":
-        return "#aeff00ff"; // yellow
+        return "#f9ff50ff"; // yellow
       case "LOW":
-        return "#00ff84ff"; // green
+        return "#19a763ff"; // green
       default:
         return "gray";
     }
@@ -143,6 +301,8 @@ export default function AdminManageReports() {
   }, [search, filter]);
 
 
+
+
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: isMobile ? "#0d0d0d" : "background.default", display: "flex", flexDirection: "column" }}>
       <Container maxWidth="lg" sx={{ mt: 3, mb: 4, flex: 1 }}>
@@ -150,7 +310,7 @@ export default function AdminManageReports() {
         <Paper elevation={3} sx={{ p: { xs: 2, sm: 3 }, borderRadius: "16px", bgcolor: "black", color: "white", position: "relative" }}>
           {isMobile && (
             <IconButton
-              onClick={() => navigate("/admin/home")}
+              onClick={() => navigate("/admin/admin-home")}
               sx={{ position: "absolute", top: 12, left: 12, color: "yellow", bgcolor: "black", border: "1px solid yellow", "&:hover": { bgcolor: "#222" } }}
               size="small"
             >
@@ -164,7 +324,7 @@ export default function AdminManageReports() {
                 variant="outlined"
                 size="medium"
                 sx={{ color: "yellow", borderColor: "yellow", "&:hover": { borderColor: "white", color: "white" } }}
-                onClick={() => navigate("/admin/home")}
+                onClick={() => navigate("/admin/admin-home")}
               >
                 Back
               </Button>
@@ -195,10 +355,10 @@ export default function AdminManageReports() {
                 const isExpanded = expandedIds.includes(r.id);
                 return (
                   <div className="col-12 mb-3" key={r.id}>
-                    <Paper elevation={4} sx={{ p: 2, width: "100%", borderRadius: "12px", bgcolor: "#1a1a1a", color: "white", border: "1px solid rgba(255,255,0,0.3)" }}>
+                    <Paper elevation={4} sx={{ p: 2, width: "100%", borderRadius: "12px", bgcolor: "#1a1a1a", color: "white" }}> {/**border: "1px solid rgba(255,255,0,0.3)" */}
                       <Box display="flex" justifyContent="space-between" alignItems="center" onClick={() => toggleExpand(r.id)}>
                         <Box>
-                          <Typography variant="subtitle1" fontWeight="bold" sx={{ color: "yellow" }}>
+                          <Typography variant="subtitle1" fontWeight="bold" sx={{ color: "white" }}>
                             {r.title || "Untitled Report"}
                           </Typography>
                           <Typography variant="body2" sx={{ color: getPriorityColor(r.priority), fontWeight: "bold" }}>
@@ -219,14 +379,37 @@ export default function AdminManageReports() {
 
                       <Collapse in={isExpanded} timeout="auto" unmountOnExit>
                         <Divider sx={{ my: 1 }} />
-                        <Typography variant="body2" sx={{ color: "#ccc" }}>
-                          {r.description || "No description provided."}
-                        </Typography>
+                        
                         <Box sx={{ display: "flex", justifyContent: "space-around", mt: 1.5, flexWrap: "wrap" }}>
-                          <Tooltip title="View Details"><IconButton color="primary"><VisibilityIcon /></IconButton></Tooltip>
-                          <Tooltip title="Verify"><IconButton onClick={() => handleVerify(r.id)} sx={{ color: "#ffb74d" }}><VerifiedIcon /></IconButton></Tooltip>
-                          <Tooltip title="Resolve"><IconButton onClick={() => handleResolve(r.id)} sx={{ color: "#00e676" }}><CheckCircleIcon /></IconButton></Tooltip>
-                          <Tooltip title="Delete"><IconButton onClick={() => handleDelete(r.id)} sx={{ color: "#ef5350" }}><DeleteIcon /></IconButton></Tooltip>
+                          <Tooltip title="View Details">
+                            <IconButton color="primary" onClick={() => handleViewDetails(r.id)}>
+                              <VisibilityIcon />
+                            </IconButton>
+                          </Tooltip>
+
+                          <Tooltip title="Verify"><IconButton onClick={() => handleVerifySoon(r.id)} sx={{ color: "#ffb74d" }}><VerifiedIcon /></IconButton></Tooltip>
+                          <Tooltip title="Resolve">
+                            <IconButton
+                              onClick={() => openConfirmResolve(r.id)}
+                              sx={{ color: "green" }}
+                            >
+                              <CheckCircleIcon />
+                            </IconButton>
+                          </Tooltip>
+                          <Tooltip title="Archive">
+  <IconButton onClick={() => openArchiveConfirm(r.id)} sx={{ color: "#ffeb3b" }}>
+    <ArchiveIcon />
+  </IconButton>
+</Tooltip>
+
+                          <Tooltip title="Delete">
+                            <IconButton
+                              onClick={() => openDeleteConfirm(r.id)}
+                              sx={{ color: "red" }}
+                            >
+                              <DeleteIcon />
+                            </IconButton>
+                          </Tooltip>
                         </Box>
                       </Collapse>
                     </Paper>
@@ -248,7 +431,7 @@ export default function AdminManageReports() {
               <TableHead sx={{ bgcolor: "black" }}>
                 <TableRow>
                   <TableCell sx={{ color: "yellow", fontWeight: "bold" }}>Title</TableCell>
-                  <TableCell sx={{ color: "yellow", fontWeight: "bold" }}>Description</TableCell>
+                  
                   <TableCell sx={{ color: "yellow", fontWeight: "bold" }}>Status</TableCell>
                   <TableCell sx={{ color: "yellow", fontWeight: "bold" }}>Priority</TableCell>
                   <TableCell align="center" sx={{ color: "yellow", fontWeight: "bold" }}>Actions</TableCell>
@@ -259,14 +442,14 @@ export default function AdminManageReports() {
                   paginatedReports.map((r) => (
                     <TableRow key={r.id} sx={{ "&:hover": { bgcolor: "rgba(255,255,0,0.05)" } }}>
                       <TableCell>{r.title}</TableCell>
-                      <TableCell>{r.description}</TableCell>
+                     
                       <TableCell>
-                        <Typography sx={{ color: r.status === "Resolved" ? "#00e676" : r.status === "Verified" ? "orange" : "red", fontWeight: "bold" }}>
+                        <Typography sx={{ color: r.status === "Resolved" ? "#00e676" : r.status === "Verified" ? "orange" : "red" }}> {/**fontWeight: "Bold" */}
                           {r.status || "Pending"}
                         </Typography>
                       </TableCell>
                       <TableCell>
-                      <Typography sx={{ color: getPriorityColor(r.priority), fontWeight: "bold" }}>
+                      <Typography sx={{ color: getPriorityColor(r.priority),  }}> {/**fontWeight: "bold" */}
                         {r.priority
                           ? r.priority.charAt(0).toUpperCase() + r.priority.slice(1).toLowerCase()
                           : "Low"}
@@ -274,10 +457,35 @@ export default function AdminManageReports() {
 
                       </TableCell>
                       <TableCell align="center">
-                        <Tooltip title="View Details"><IconButton color="primary"><VisibilityIcon /></IconButton></Tooltip>
-                        <Tooltip title="Verify"><IconButton onClick={() => handleVerify(r.id)} sx={{ color: "orange" }}><VerifiedIcon /></IconButton></Tooltip>
-                        <Tooltip title="Resolve"><IconButton onClick={() => handleResolve(r.id)} sx={{ color: "green" }}><CheckCircleIcon /></IconButton></Tooltip>
-                        <Tooltip title="Delete"><IconButton onClick={() => handleDelete(r.id)} sx={{ color: "red" }}><DeleteIcon /></IconButton></Tooltip>
+                        <Tooltip title="View Details">
+                          <IconButton color="primary" onClick={() => handleViewDetails(r.id)}>
+                            <VisibilityIcon />
+                          </IconButton>
+                        </Tooltip>
+
+                        <Tooltip title="Verify"><IconButton onClick={() => handleVerifySoon(r.id)} sx={{ color: "orange" }}><VerifiedIcon /></IconButton></Tooltip>
+                        <Tooltip title="Resolve">
+                          <IconButton
+                            onClick={() => openConfirmResolve(r.id)}
+                            sx={{ color: "green" }}
+                          >
+                            <CheckCircleIcon />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Archive">
+  <IconButton onClick={() => openArchiveConfirm(r.id)} sx={{ color: "#ffeb3b" }}>
+    <ArchiveIcon />
+  </IconButton>
+</Tooltip>
+
+                        <Tooltip title="Delete">
+                          <IconButton
+                            onClick={() => openDeleteConfirm(r.id)}
+                            sx={{ color: "red" }}
+                          >
+                            <DeleteIcon />
+                          </IconButton>
+                        </Tooltip>
                       </TableCell>
                     </TableRow>
                   ))
@@ -291,96 +499,344 @@ export default function AdminManageReports() {
 
            {/* Pagination */}
           {/* Custom Pagination Bar (perfectly aligned) */}
-<Box
-  sx={{
-    bgcolor: "black",
-    color: "yellow",
-    borderTop: "1px solid rgba(255,255,255,0.1)",
-    display: "flex",
-    justifyContent: "flex-end",
-    alignItems: "center",
-    px: 3,
-    py: 1,
-    gap: 1.5,
-    flexWrap: "nowrap",
-  }}
->
-  <Typography variant="body2" sx={{ color: "yellow" }}>
-    Rows per page:
-  </Typography>
+            <Box
+              sx={{
+                bgcolor: "black",
+                color: "yellow",
+                borderTop: "1px solid rgba(255,255,255,0.1)",
+                display: "flex",
+                justifyContent: "flex-end",
+                alignItems: "center",
+                px: 3,
+                py: 1,
+                gap: 1.5,
+                flexWrap: "nowrap",
+              }}
+            >
+              <Typography variant="body2" sx={{ color: "yellow" }}>
+                Rows per page:
+              </Typography>
 
-  <TextField
-    select
-    value={rowsPerPage}
-    onChange={(e) => {
-      setRowsPerPage(parseInt(e.target.value, 10));
-      setPage(0);
-    }}
-    variant="outlined"
-    size="small"
-    sx={{
-      width: 70,
-      "& .MuiSelect-select": {
-        color: "yellow",
-        py: "4px",
-      },
-      "& fieldset": {
-        borderColor: "yellow",
-      },
-      "&:hover fieldset": {
-        borderColor: "white",
-      },
-      "& svg": {
-        color: "yellow",
-      },
-    }}
-  >
-    {[5, 10, 25, 50].map((option) => (
-      <MenuItem key={option} value={option}>
-        {option}
-      </MenuItem>
-    ))}
-  </TextField>
+              <TextField
+                select
+                value={rowsPerPage}
+                onChange={(e) => {
+                  setRowsPerPage(parseInt(e.target.value, 10));
+                  setPage(0);
+                }}
+                variant="outlined"
+                size="small"
+                sx={{
+                  width: 70,
+                  "& .MuiSelect-select": {
+                    color: "yellow",
+                    py: "4px",
+                  },
+                  "& fieldset": {
+                    borderColor: "yellow",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: "white",
+                  },
+                  "& svg": {
+                    color: "yellow",
+                  },
+                }}
+              >
+                {[5, 10, 25, 50].map((option) => (
+                  <MenuItem key={option} value={option}>
+                    {option}
+                  </MenuItem>
+                ))}
+              </TextField>
 
-  <Typography variant="body2" sx={{ color: "yellow", mx: 2 }}>
-    {`${page * rowsPerPage + 1}-${Math.min((page + 1) * rowsPerPage, filteredReports.length)} of ${filteredReports.length}`}
-  </Typography>
+              <Typography variant="body2" sx={{ color: "yellow", mx: 2 }}>
+                {`${page * rowsPerPage + 1}-${Math.min((page + 1) * rowsPerPage, filteredReports.length)} of ${filteredReports.length}`}
+              </Typography>
 
-  <Box sx={{ display: "flex", alignItems: "center" }}>
-    <IconButton
-      size="small"
-      onClick={() => setPage(Math.max(0, page - 1))}
-      disabled={page === 0}
-      sx={{ color: "yellow" }}
-    >
-      {"<"}
-    </IconButton>
-    <IconButton
-      size="small"
-      onClick={() =>
-        setPage(
-          Math.min(
-            Math.ceil(filteredReports.length / rowsPerPage) - 1,
-            page + 1
-          )
-        )
-      }
-      disabled={page >= Math.ceil(filteredReports.length / rowsPerPage) - 1}
-      sx={{ color: "yellow" }}
-    >
-      {">"}
-    </IconButton>
-  </Box>
-</Box>
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <IconButton
+                  size="small"
+                  onClick={() => setPage(Math.max(0, page - 1))}
+                  disabled={page === 0}
+                  sx={{ color: "yellow" }}
+                >
+                  {"<"}
+                </IconButton>
+                <IconButton
+                  size="small"
+                  onClick={() =>
+                    setPage(
+                      Math.min(
+                        Math.ceil(filteredReports.length / rowsPerPage) - 1,
+                        page + 1
+                      )
+                    )
+                  }
+                  disabled={page >= Math.ceil(filteredReports.length / rowsPerPage) - 1}
+                  sx={{ color: "yellow" }}
+                >
+                  {">"}
+                </IconButton>
+              </Box>
+            </Box>
 
           </TableContainer>
         )}
 
       </Container>
+      <Dialog
+        open={confirmDialog.open}
+        onClose={closeConfirmDialog}
+        PaperProps={{
+          sx: {
+            bgcolor: "#0d0d0d", // dark background
+            color: "white",
+            //border: "1px solid rgba(255,255,0,0.4)",
+            borderRadius: "12px",
+            //boxShadow: "0 0 12px rgba(255,255,0,0.2)",
+          },
+        }}
+      >
+        <DialogTitle
+          sx={{
+            fontWeight: "bold",
+            color: "yellow",
+            borderBottom: "1px solid rgba(255,255,0,0.2)",
+          }}
+        >
+          Confirm Resolution
+        </DialogTitle>
+
+        <DialogContent sx={{ mt: 1 }}>
+          <Typography sx={{ color: "white", fontSize: "0.95rem" }}>
+            Are you sure you want to mark this report as{" "}
+            <b style={{ color: "#00e676" }}>Resolved</b>?
+          </Typography>
+        </DialogContent>
+
+        <DialogActions
+          sx={{
+            borderTop: "1px solid rgba(255,255,0,0.2)",
+            p: 2,
+            justifyContent: "flex-end",
+          }}
+        >
+          <Button
+            onClick={closeConfirmDialog}
+            variant="outlined"
+            sx={{
+              color: "yellow",
+              borderColor: "yellow",
+              "&:hover": {
+                borderColor: "red",
+                color: "white",
+              },
+            }}
+          >
+            Cancel
+          </Button>
+
+          <Button
+            onClick={confirmResolve}
+            variant="contained"
+            sx={{
+              bgcolor: "yellow",
+              color: "black",
+              //fontWeight: "bold",
+              "&:hover": {
+                bgcolor: "#58ff3bff",
+                color: "black",
+              },
+            }}
+          >
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={deleteDialog.open}
+        onClose={closeDeleteDialog}
+        PaperProps={{
+          sx: {
+            bgcolor: "#0d0d0d",
+            color: "white",
+            //border: "1px solid rgba(255,0,0,0.4)",
+            borderRadius: "12px",
+            //boxShadow: "0 0 15px rgba(255,0,0,0.3)",
+          },
+        }}
+      >
+        <DialogTitle
+          sx={{
+            fontWeight: "bold",
+            color: "red",
+            borderBottom: "1px solid rgba(255,0,0,0.2)",
+          }}
+        >
+          Confirm Delete
+        </DialogTitle>
+
+        <DialogContent sx={{ mt: 1 }}>
+          <Typography sx={{ color: "white", mb: 2 }}>
+            This action will permanently delete the report. Please enter your admin
+            password to confirm.
+          </Typography>
+          <TextField
+            type="password"
+            label="Admin Password"
+            variant="outlined"
+            fullWidth
+            size="small"
+            value={deleteDialog.password}
+            onChange={(e) =>
+              setDeleteDialog({ ...deleteDialog, password: e.target.value })
+            }
+            sx={{
+              input: { color: "white" },
+              "& label": { color: "gray" },
+              "& .MuiOutlinedInput-root": {
+                "& fieldset": { borderColor: "red" },
+                "&:hover fieldset": { borderColor: "white" },
+              },
+            }}
+          />
+        </DialogContent>
+
+        <DialogActions
+          sx={{
+            borderTop: "1px solid rgba(255,0,0,0.2)",
+            p: 2,
+            justifyContent: "flex-end",
+          }}
+        >
+          <Button
+            onClick={closeDeleteDialog}
+            variant="outlined"
+            sx={{
+              color: "red",
+              borderColor: "red",
+              "&:hover": { borderColor: "white", color: "white" },
+            }}
+          >
+            Cancel
+          </Button>
+
+          <Button
+            onClick={confirmDelete}
+            variant="contained"
+            sx={{
+              bgcolor: "red",
+              color: "white",
+              fontWeight: "bold",
+              "&:hover": { bgcolor: "#ff4444" },
+            }}
+            disabled={!deleteDialog.password}
+          >
+            Confirm Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+  open={archiveDialog.open}
+  onClose={closeArchiveDialog}
+  PaperProps={{
+    sx: {
+      bgcolor: "#0d0d0d",
+      color: "white",
+      border: "1px solid rgba(255,255,0,0.4)",
+      borderRadius: "12px",
+      boxShadow: "0 0 12px rgba(255,255,0,0.2)",
+    },
+  }}
+>
+  <DialogTitle
+    sx={{
+      fontWeight: "bold",
+      color: "yellow",
+      borderBottom: "1px solid rgba(255,255,0,0.2)",
+    }}
+  >
+    Confirm Archive
+  </DialogTitle>
+
+  <DialogContent sx={{ mt: 1 }}>
+    <Typography sx={{ color: "white", fontSize: "0.95rem" }}>
+      Are you sure you want to <b style={{ color: "#ffeb3b" }}>archive</b> this
+      report? It will be moved out of the active list.
+    </Typography>
+  </DialogContent>
+
+  <DialogActions
+    sx={{
+      borderTop: "1px solid rgba(255,255,0,0.2)",
+      p: 2,
+      justifyContent: "flex-end",
+    }}
+  >
+    <Button
+      onClick={closeArchiveDialog}
+      variant="outlined"
+      sx={{
+        color: "yellow",
+        borderColor: "yellow",
+        "&:hover": { borderColor: "white", color: "white" },
+      }}
+    >
+      Cancel
+    </Button>
+
+    <Button
+      onClick={confirmArchive}
+      variant="contained"
+      sx={{
+        bgcolor: "yellow",
+        color: "black",
+        fontWeight: "bold",
+        "&:hover": { bgcolor: "white", color: "black" },
+      }}
+    >
+      Confirm
+    </Button>
+  </DialogActions>
+</Dialog>
+
+
+
+
+
 
       <Snackbar open={newReportAlert} autoHideDuration={3000} onClose={() => setNewReportAlert(false)} anchorOrigin={{ vertical: "top", horizontal: "center" }}>
         <Alert severity="info" sx={{ width: "100%" }}>New report added!</Alert>
       </Snackbar>
+
+      <Snackbar
+        open={resolveSuccessAlert}
+        autoHideDuration={3000}
+        onClose={() => setResolveSuccessAlert(false)}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert severity="success" sx={{ width: "100%" }}>
+          Report marked as resolved!
+        </Alert>
+      </Snackbar>
+
+      <Snackbar
+  open={archiveSuccessAlert}
+  autoHideDuration={3000}
+  onClose={() => setArchiveSuccessAlert(false)}
+  anchorOrigin={{ vertical: "top", horizontal: "center" }}
+>
+  <Alert severity="info" sx={{ width: "100%" }}>
+    Report archived successfully!
+  </Alert>
+</Snackbar>
+
+
+
+      
 
       <Box component="footer" sx={{ flexShrink: 0, py: 2, textAlign: "center", color: "gray", fontSize: "0.8rem", borderTop: "1px solid rgba(255,255,255,0.1)" }}>
         © 2025 Community Reporting App — Admin Portal

@@ -1,0 +1,32 @@
+====================================
+//this is for delete report id from admin 
+
+@DeleteMapping("/admin/delete/report/{id}")
+public ResponseEntity<?> deleteReportWithPassword(
+    @PathVariable int id,
+    @RequestBody Map<String, String> requestBody,
+    Principal principal // or from SecurityContext
+) {
+    try {
+        String password = requestBody.get("password");
+
+        // Get logged-in admin username
+        String username = principal.getName();
+        Admin admin = adminRepo.findByUsername(username)
+            .orElseThrow(() -> new RuntimeException("Admin not found"));
+
+        // Check password (assuming bcrypt or similar)
+        if (!passwordEncoder.matches(password, admin.getPassword())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                                 .body("Incorrect password.");
+        }
+
+        // If correct, proceed with delete
+        reportRepo.deleteById(id);
+        return ResponseEntity.ok("Report deleted successfully.");
+    } catch (Exception e) {
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                             .body("Failed to delete report.");
+    }
+}

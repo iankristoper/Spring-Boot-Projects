@@ -18,7 +18,8 @@ import Feed from "./pages/Feed";
 import News from "./pages/News";
 import AdminHome from "./pages/admin/AdminHome";
 import AdminManageReports from "./pages/admin/AdminManageReports";
-
+import ViewReportAdmin from "./components/ViewReportAdmin";
+import ComingSoon from "./components/ComingSoon";
 
 
 
@@ -173,6 +174,36 @@ export default function App() {
           element={
             <PrivateRoute role="ROLE_ADMIN">
               <AdminManageReports />
+            </PrivateRoute>
+          }
+        />
+
+        {/* Protected single report view */}
+        <Route
+          path="/admin/reports/:id"
+          element={
+            <PrivateRoute role="ROLE_ADMIN">
+              <ViewReportAdmin />
+            </PrivateRoute>
+          }
+        />
+
+        {/* Coming soon */}
+        <Route
+          path="/admin/reports/verify/:id"
+          element={
+            <PrivateRoute role="ROLE_ADMIN">
+              <ComingSoon />
+            </PrivateRoute>
+          }
+        />
+
+        {/* Admin Home*/}
+        <Route
+          path="/admin/admin-home"
+          element={
+            <PrivateRoute role="ROLE_ADMIN">
+              <AdminHome />
             </PrivateRoute>
           }
         />
