@@ -397,10 +397,10 @@ const confirmArchive = () => {
                             </IconButton>
                           </Tooltip>
                           <Tooltip title="Archive">
-  <IconButton onClick={() => openArchiveConfirm(r.id)} sx={{ color: "#ffeb3b" }}>
-    <ArchiveIcon />
-  </IconButton>
-</Tooltip>
+                            <IconButton onClick={() => openArchiveConfirm(r.id)} sx={{ color: "#ffeb3b" }}>
+                              <ArchiveIcon />
+                            </IconButton>
+                          </Tooltip>
 
                           <Tooltip title="Delete">
                             <IconButton
@@ -473,10 +473,10 @@ const confirmArchive = () => {
                           </IconButton>
                         </Tooltip>
                         <Tooltip title="Archive">
-  <IconButton onClick={() => openArchiveConfirm(r.id)} sx={{ color: "#ffeb3b" }}>
-    <ArchiveIcon />
-  </IconButton>
-</Tooltip>
+                          <IconButton onClick={() => openArchiveConfirm(r.id)} sx={{ color: "#ffeb3b" }}>
+                            <ArchiveIcon />
+                          </IconButton>
+                        </Tooltip>
 
                         <Tooltip title="Delete">
                           <IconButton
@@ -497,8 +497,8 @@ const confirmArchive = () => {
               </TableBody>
             </Table>
 
-           {/* Pagination */}
-          {/* Custom Pagination Bar (perfectly aligned) */}
+            {/* Pagination */}
+            {/* Custom Pagination Bar (perfectly aligned) */}
             <Box
               sx={{
                 bgcolor: "black",
@@ -583,8 +583,10 @@ const confirmArchive = () => {
 
           </TableContainer>
         )}
-
       </Container>
+
+
+
       <Dialog
         open={confirmDialog.open}
         onClose={closeConfirmDialog}
@@ -630,7 +632,7 @@ const confirmArchive = () => {
               borderColor: "yellow",
               "&:hover": {
                 borderColor: "red",
-                color: "white",
+                color: "red",
               },
             }}
           >
@@ -717,7 +719,7 @@ const confirmArchive = () => {
             sx={{
               color: "red",
               borderColor: "red",
-              "&:hover": { borderColor: "white", color: "white" },
+              "&:hover": { borderColor: "red", color: "red" },
             }}
           >
             Cancel
@@ -740,68 +742,68 @@ const confirmArchive = () => {
       </Dialog>
 
       <Dialog
-  open={archiveDialog.open}
-  onClose={closeArchiveDialog}
-  PaperProps={{
-    sx: {
-      bgcolor: "#0d0d0d",
-      color: "white",
-      border: "1px solid rgba(255,255,0,0.4)",
-      borderRadius: "12px",
-      boxShadow: "0 0 12px rgba(255,255,0,0.2)",
-    },
-  }}
->
-  <DialogTitle
-    sx={{
-      fontWeight: "bold",
-      color: "yellow",
-      borderBottom: "1px solid rgba(255,255,0,0.2)",
-    }}
-  >
-    Confirm Archive
-  </DialogTitle>
+        open={archiveDialog.open}
+        onClose={closeArchiveDialog}
+        PaperProps={{
+          sx: {
+            bgcolor: "#0d0d0d",
+            color: "white",
+            //border: "1px solid rgba(255,255,0,0.4)",
+            borderRadius: "12px",
+            //boxShadow: "0 0 12px rgba(255,255,0,0.2)",
+          },
+        }}
+      >
+        <DialogTitle
+          sx={{
+            fontWeight: "bold",
+            color: "yellow",
+            borderBottom: "1px solid rgba(255,255,0,0.2)",
+          }}
+        >
+          Confirm Archive
+        </DialogTitle>
 
-  <DialogContent sx={{ mt: 1 }}>
-    <Typography sx={{ color: "white", fontSize: "0.95rem" }}>
-      Are you sure you want to <b style={{ color: "#ffeb3b" }}>archive</b> this
-      report? It will be moved out of the active list.
-    </Typography>
-  </DialogContent>
+        <DialogContent sx={{ mt: 1 }}>
+          <Typography sx={{ color: "white", fontSize: "0.95rem" }}>
+            Are you sure you want to <b style={{ color: "#ffeb3b" }}>archive</b> this
+            report? It will be moved out of the active list.
+          </Typography>
+        </DialogContent>
 
-  <DialogActions
-    sx={{
-      borderTop: "1px solid rgba(255,255,0,0.2)",
-      p: 2,
-      justifyContent: "flex-end",
-    }}
-  >
-    <Button
-      onClick={closeArchiveDialog}
-      variant="outlined"
-      sx={{
-        color: "yellow",
-        borderColor: "yellow",
-        "&:hover": { borderColor: "white", color: "white" },
-      }}
-    >
-      Cancel
-    </Button>
+        <DialogActions
+          sx={{
+            borderTop: "1px solid rgba(255,255,0,0.2)",
+            p: 2,
+            justifyContent: "flex-end",
+          }}
+        >
+          <Button
+            onClick={closeArchiveDialog}
+            variant="outlined"
+            sx={{
+              color: "yellow",
+              borderColor: "yellow",
+              "&:hover": { borderColor: "red", color: "red" },
+            }}
+          >
+            Cancel
+          </Button>
 
-    <Button
-      onClick={confirmArchive}
-      variant="contained"
-      sx={{
-        bgcolor: "yellow",
-        color: "black",
-        fontWeight: "bold",
-        "&:hover": { bgcolor: "white", color: "black" },
-      }}
-    >
-      Confirm
-    </Button>
-  </DialogActions>
-</Dialog>
+          <Button
+            onClick={confirmArchive}
+            variant="contained"
+            sx={{
+              bgcolor: "yellow",
+              color: "black",
+              //fontWeight: "bold",
+              "&:hover": { bgcolor: "#58ff3bff", color: "black" },
+            }}
+          >
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
 
 
 
@@ -824,15 +826,15 @@ const confirmArchive = () => {
       </Snackbar>
 
       <Snackbar
-  open={archiveSuccessAlert}
-  autoHideDuration={3000}
-  onClose={() => setArchiveSuccessAlert(false)}
-  anchorOrigin={{ vertical: "top", horizontal: "center" }}
->
-  <Alert severity="info" sx={{ width: "100%" }}>
-    Report archived successfully!
-  </Alert>
-</Snackbar>
+        open={archiveSuccessAlert}
+        autoHideDuration={3000}
+        onClose={() => setArchiveSuccessAlert(false)}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert severity="info" sx={{ width: "100%" }}>
+          Report archived successfully!
+        </Alert>
+      </Snackbar>
 
 
 
