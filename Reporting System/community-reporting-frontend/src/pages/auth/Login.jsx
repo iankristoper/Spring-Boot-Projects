@@ -48,7 +48,7 @@ export default function Login() {
       // Save session data
       localStorage.setItem("isAuthenticated", "true");
       localStorage.setItem("user", JSON.stringify(userData));
-      localStorage.setItem("expiry", Date.now() + 3600000); // 1 hour
+      localStorage.setItem("expiry", Date.now() + 7200000); // 1 hour
 
       // Redirect based on role
       if (userData.role === "ROLE_ADMIN") {

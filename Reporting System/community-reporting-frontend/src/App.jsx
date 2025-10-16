@@ -1,8 +1,8 @@
 import React from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
-import Home from "./pages/Home";
+import Login from "./pages/auth/Login";
+import Signup from "./pages/auth/Signup";
+import Home from "./pages/homepage/Home";
 import Dashboard from "./pages/Dashboard";
 import Navbar from "./components/Navbar";
 import DashboardNavbar from "./components/DashboardNavbar"; 
@@ -20,6 +20,7 @@ import AdminHome from "./pages/admin/AdminHome";
 import AdminManageReports from "./pages/admin/AdminManageReports";
 import ViewReportAdmin from "./components/ViewReportAdmin";
 import ComingSoon from "./components/ComingSoon";
+import AdminManageNews from "./pages/admin/NewsAndUpdates/AdminManageNews";
 
 
 
@@ -204,6 +205,16 @@ export default function App() {
           element={
             <PrivateRoute role="ROLE_ADMIN">
               <AdminHome />
+            </PrivateRoute>
+          }
+        />
+
+
+        <Route
+          path="/admin/news"
+          element={
+            <PrivateRoute role="ROLE_ADMIN">
+              <AdminManageNews />
             </PrivateRoute>
           }
         />

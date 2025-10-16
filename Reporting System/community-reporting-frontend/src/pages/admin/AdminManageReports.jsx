@@ -80,9 +80,6 @@ const [archiveSuccessAlert, setArchiveSuccessAlert] = useState(false);
 
 
 
-
-
-
   // New state for confirmation dialog
   const [confirmDialog, setConfirmDialog] = useState({
     open: false,
@@ -113,7 +110,7 @@ const [archiveSuccessAlert, setArchiveSuccessAlert] = useState(false);
         prevReports.map((r) => (r.id === id ? { ...r, status: "Resolved" } : r))
       );
       closeConfirmDialog();
-      setResolveSuccessAlert(true); // ✅ Show success Snackbar
+      setResolveSuccessAlert(true); // Show success Snackbar
     })
     .catch((err) => {
       console.error("Failed to resolve report", err);
@@ -122,40 +119,36 @@ const [archiveSuccessAlert, setArchiveSuccessAlert] = useState(false);
   };
 
 
-
-
-
-
   const openArchiveConfirm = (id) => {
-  setArchiveDialog({ open: true, reportId: id });
-};
+    setArchiveDialog({ open: true, reportId: id });
+  };
 
-const closeArchiveDialog = () => {
-  setArchiveDialog({ open: false, reportId: null });
-};
+  const closeArchiveDialog = () => {
+    setArchiveDialog({ open: false, reportId: null });
+  };
 
-const confirmArchive = () => {
-  const id = archiveDialog.reportId;
-  axios
-    .put(
-      `http://localhost:8080/api/admin/update/archive-status/${id}`,
-      {},
-      { withCredentials: true }
-    )
-    .then(() => {
-      setReports((prevReports) =>
-        prevReports.map((r) =>
-          r.id === id ? { ...r, status: "Archived" } : r
-        )
-      );
-      closeArchiveDialog();
-      setArchiveSuccessAlert(true);
-    })
-    .catch((err) => {
-      console.error("Failed to archive report", err);
-      closeArchiveDialog();
-    });
-};
+  const confirmArchive = () => {
+    const id = archiveDialog.reportId;
+    axios
+      .put(
+        `http://localhost:8080/api/admin/update/archive-status/${id}`,
+        {},
+        { withCredentials: true }
+      )
+      .then(() => {
+        setReports((prevReports) =>
+          prevReports.map((r) =>
+            r.id === id ? { ...r, status: "Archived" } : r
+          )
+        );
+        closeArchiveDialog();
+        setArchiveSuccessAlert(true);
+      })
+      .catch((err) => {
+        console.error("Failed to archive report", err);
+        closeArchiveDialog();
+      });
+  };
 
 
   useEffect(() => {
@@ -187,15 +180,10 @@ const confirmArchive = () => {
   }, []);
 
 
-
-
   const handleViewDetails = (id) => {
     // Navigate to a new page that will show this report's full details
     navigate(`/admin/reports/${id}`);
   };
-
-
-
 
 
   const handleDelete = (id) => {
@@ -206,8 +194,6 @@ const confirmArchive = () => {
         .catch((err) => console.error("Failed to delete report", err));
     }
   };
-
-
 
 
   const confirmDelete = () => {
@@ -233,8 +219,6 @@ const confirmArchive = () => {
         }
       });
   };
-
-
 
 
   const handleVerify = (id) => {
@@ -441,8 +425,12 @@ const confirmArchive = () => {
                 {paginatedReports.length > 0 ? (
                   paginatedReports.map((r) => (
                     <TableRow key={r.id} sx={{ "&:hover": { bgcolor: "rgba(255,255,0,0.05)" } }}>
-                      <TableCell>{r.title}</TableCell>
-                     
+                      <TableCell>{/**{r.title} */}
+                        <Typography variant="subtitle2" fontWeight="bold" sx={{ color: "white" }}>
+                            {r.title || "Untitled Report"}
+                          </Typography>
+                      </TableCell>
+                        
                       <TableCell>
                         <Typography sx={{ color: r.status === "Resolved" ? "#00e676" : r.status === "Verified" ? "orange" : "red" }}> {/**fontWeight: "Bold" */}
                           {r.status || "Pending"}

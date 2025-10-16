@@ -2421,3 +2421,600 @@ export default function AdminManageReports() {
     </Box>
   );
 }
+
+
+
+
+
+====================================================
+
+// This is for manage new
+
+// src/pages/NewsAndUpdates/AdminManageNews.jsx
+
+import React, { useState, useEffect, useRef } from "react";
+import {
+  Box,
+  Container,
+  Paper,
+  Typography,
+  TextField,
+  MenuItem,
+  Button,
+  IconButton,
+  Tooltip,
+  Divider,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  useMediaQuery,
+  Collapse,
+  Snackbar,
+  Alert,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+} from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import PublishIcon from "@mui/icons-material/Publish";
+import UnpublishedIcon from "@mui/icons-material/Unpublished";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { useTheme } from "@mui/material/styles";
+
+export default function AdminManageNews() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const navigate = useNavigate();
+
+  const [news, setNews] = useState([]);
+  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState("All");
+  const [expandedIds, setExpandedIds] = useState([]);
+
+  const [newNewsAlert, setNewNewsAlert] = useState(false);
+  const [publishSuccessAlert, setPublishSuccessAlert] = useState(false);
+  const [unpublishSuccessAlert, setUnpublishSuccessAlert] = useState(false);
+  const [deleteSuccessAlert, setDeleteSuccessAlert] = useState(false);
+
+  const previousIdsRef = useRef([]);
+
+  const [dialog, setDialog] = useState({ open: false, mode: "add", newsItem: null });
+  const [confirmDialog, setConfirmDialog] = useState({ open: false, type: null, id: null });
+
+  // Fetch News
+  useEffect(() => {
+    const fetchNews = () => {
+      axios
+        .get("http://localhost:8080/api/news/fetch_all", { withCredentials: true })
+        .then((res) => {
+          const sortedNews = res.data.sort((a, b) =>
+            a.status === "Published" && b.status !== "Published" ? -1 : 1
+          );
+          const newIds = sortedNews.map((n) => n.id);
+
+          if (previousIdsRef.current.length > 0 && newIds.some((id) => !previousIdsRef.current.includes(id))) {
+            setNewNewsAlert(true);
+          }
+
+          previousIdsRef.current = newIds;
+          setNews(sortedNews);
+        })
+        .catch((err) => console.error("Failed to fetch news:", err));
+    };
+
+    fetchNews();
+    const interval = setInterval(fetchNews, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Filtering logic
+  const filteredNews = Array.isArray(news)
+    ? news.filter((n) => {
+        const matchSearch =
+          n.title?.toLowerCase().includes(search.toLowerCase()) ||
+          n.content?.toLowerCase().includes(search.toLowerCase());
+        const matchFilter = filter === "All" || n.status === filter;
+        return matchSearch && matchFilter;
+      })
+    : [];
+
+  const toggleExpand = (id) => {
+    setExpandedIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  const openConfirmDialog = (type, id) => {
+    setConfirmDialog({ open: true, type, id });
+  };
+
+  const closeConfirmDialog = () => {
+    setConfirmDialog({ open: false, type: null, id: null });
+  };
+
+  const handleConfirmAction = () => {
+    const { type, id } = confirmDialog;
+
+    let request;
+    if (type === "publish") {
+      request = axios.put(`http://localhost:8080/api/news/publish/${id}`, {}, { withCredentials: true });
+    } else if (type === "unpublish") {
+      request = axios.put(`http://localhost:8080/api/news/unpublish/${id}`, {}, { withCredentials: true });
+    } else if (type === "delete") {
+      request = axios.delete(`http://localhost:8080/api/news/delete/${id}`, { withCredentials: true });
+    }
+
+    request
+      .then(() => {
+        setNews((prev) =>
+          prev.map((n) =>
+            n.id === id
+              ? {
+                  ...n,
+                  status:
+                    type === "publish"
+                      ? "Published"
+                      : type === "unpublish"
+                      ? "Unpublished"
+                      : undefined,
+                }
+              : n
+          ).filter((n) => (type === "delete" ? n.id !== id : true))
+        );
+
+        closeConfirmDialog();
+        if (type === "publish") setPublishSuccessAlert(true);
+        if (type === "unpublish") setUnpublishSuccessAlert(true);
+        if (type === "delete") setDeleteSuccessAlert(true);
+      })
+      .catch((err) => {
+        console.error(`Failed to ${type} news:`, err);
+        closeConfirmDialog();
+      });
+  };
+
+  return (
+    <Box
+      sx={{
+        minHeight: "100vh",
+        bgcolor: isMobile ? "#0d0d0d" : "background.default",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
+      <Container maxWidth="lg" sx={{ mt: 3, mb: 4, flex: 1 }}>
+        {/* Header */}
+        <Paper
+          elevation={3}
+          sx={{
+            p: { xs: 2, sm: 3 },
+            borderRadius: "16px",
+            bgcolor: "black",
+            color: "white",
+            position: "relative",
+          }}
+        >
+          {isMobile && (
+            <IconButton
+              onClick={() => navigate("/admin/admin-home")}
+              sx={{
+                position: "absolute",
+                top: 12,
+                left: 12,
+                color: "yellow",
+                bgcolor: "black",
+                border: "1px solid yellow",
+                "&:hover": { bgcolor: "#222" },
+              }}
+              size="small"
+            >
+              <ArrowBackIcon fontSize="small" />
+            </IconButton>
+          )}
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent={isMobile ? "center" : "space-between"}
+            flexWrap="wrap"
+            gap={1}
+          >
+            {!isMobile && (
+              <Button
+                startIcon={<ArrowBackIcon />}
+                variant="outlined"
+                size="medium"
+                sx={{
+                  color: "yellow",
+                  borderColor: "yellow",
+                  "&:hover": { borderColor: "white", color: "white" },
+                }}
+                onClick={() => navigate("/admin/admin-home")}
+              >
+                Back
+              </Button>
+            )}
+            <Typography
+              variant={isMobile ? "h6" : "h5"}
+              fontWeight="bold"
+              sx={{
+                color: "yellow",
+                textAlign: isMobile ? "center" : "right",
+                width: isMobile ? "100%" : "auto",
+                letterSpacing: "0.5px",
+              }}
+            >
+              Manage News & Updates
+            </Typography>
+          </Box>
+        </Paper>
+
+        {/* Filters + Add Button */}
+        <Paper
+          elevation={2}
+          sx={{
+            p: 2,
+            borderRadius: "12px",
+            display: "flex",
+            flexWrap: "wrap",
+            gap: 2,
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <TextField
+            label="Search News"
+            variant="outlined"
+            size="small"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            sx={{ flex: 1, minWidth: 220 }}
+          />
+          <TextField
+            label="Filter by Status"
+            select
+            variant="outlined"
+            size="small"
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            sx={{ width: 200 }}
+          >
+            {["All", "Published", "Unpublished"].map((option) => (
+              <MenuItem key={option} value={option}>
+                {option}
+              </MenuItem>
+            ))}
+          </TextField>
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            sx={{ bgcolor: "yellow", color: "black", "&:hover": { bgcolor: "#f9ff50" } }}
+            onClick={() => setDialog({ open: true, mode: "add", newsItem: null })}
+          >
+            Add News
+          </Button>
+        </Paper>
+
+        {/* Table / Mobile View */}
+        {isMobile ? (
+          filteredNews.length > 0 ? (
+            filteredNews.map((n) => {
+              const isExpanded = expandedIds.includes(n.id);
+              return (
+                <Paper
+                  key={n.id}
+                  elevation={3}
+                  sx={{
+                    p: 2,
+                    mt: 2,
+                    borderRadius: "12px",
+                    bgcolor: "#1a1a1a",
+                    color: "white",
+                  }}
+                >
+                  <Box
+                    display="flex"
+                    justifyContent="space-between"
+                    alignItems="center"
+                    onClick={() => toggleExpand(n.id)}
+                  >
+                    <Box>
+                      <Typography variant="subtitle1" fontWeight="bold">
+                        {n.title || "Untitled"}
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          color:
+                            n.status === "Published" ? "#00e676" : "#ffb74d",
+                        }}
+                      >
+                        {n.status}
+                      </Typography>
+                    </Box>
+                    <IconButton sx={{ color: "yellow" }} size="small">
+                      {isExpanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                    </IconButton>
+                  </Box>
+                  <Collapse in={isExpanded} timeout="auto" unmountOnExit>
+                    <Divider sx={{ my: 1 }} />
+                    <Typography variant="body2" sx={{ color: "gray", mb: 1 }}>
+                      {n.content || "No content available"}
+                    </Typography>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-around",
+                        mt: 1.5,
+                        flexWrap: "wrap",
+                      }}
+                    >
+                      <Tooltip title="View Details">
+                        <IconButton color="primary">
+                          <VisibilityIcon />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Edit">
+                        <IconButton sx={{ color: "orange" }}>
+                          <EditIcon />
+                        </IconButton>
+                      </Tooltip>
+                      {n.status === "Published" ? (
+                        <Tooltip title="Unpublish">
+                          <IconButton
+                            sx={{ color: "red" }}
+                            onClick={() => openConfirmDialog("unpublish", n.id)}
+                          >
+                            <UnpublishedIcon />
+                          </IconButton>
+                        </Tooltip>
+                      ) : (
+                        <Tooltip title="Publish">
+                          <IconButton
+                            sx={{ color: "green" }}
+                            onClick={() => openConfirmDialog("publish", n.id)}
+                          >
+                            <PublishIcon />
+                          </IconButton>
+                        </Tooltip>
+                      )}
+                      <Tooltip title="Delete">
+                        <IconButton
+                          sx={{ color: "red" }}
+                          onClick={() => openConfirmDialog("delete", n.id)}
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </Box>
+                  </Collapse>
+                </Paper>
+              );
+            })
+          ) : (
+            <Typography sx={{ mt: 3, textAlign: "center", color: "gray" }}>
+              No news found.
+            </Typography>
+          )
+        ) : (
+          <TableContainer component={Paper} elevation={3} sx={{ mt: 3, borderRadius: "12px" }}>
+            <Table>
+              <TableHead sx={{ bgcolor: "black" }}>
+                <TableRow>
+                  <TableCell sx={{ color: "yellow", fontWeight: "bold" }}>Title</TableCell>
+                  <TableCell sx={{ color: "yellow", fontWeight: "bold" }}>Status</TableCell>
+                  <TableCell align="center" sx={{ color: "yellow", fontWeight: "bold" }}>Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {filteredNews.length > 0 ? (
+                  filteredNews.map((n) => (
+                    <TableRow key={n.id}>
+                      <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                        {n.title}
+                      </TableCell>
+                      <TableCell sx={{ color: n.status === "Published" ? "#00e676" : "#ffb74d" }}>
+                        {n.status}
+                      </TableCell>
+                      <TableCell align="center">
+                        <Tooltip title="View Details">
+                          <IconButton color="primary">
+                            <VisibilityIcon />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Edit">
+                          <IconButton sx={{ color: "orange" }}>
+                            <EditIcon />
+                          </IconButton>
+                        </Tooltip>
+                        {n.status === "Published" ? (
+                          <Tooltip title="Unpublish">
+                            <IconButton
+                              sx={{ color: "red" }}
+                              onClick={() => openConfirmDialog("unpublish", n.id)}
+                            >
+                              <UnpublishedIcon />
+                            </IconButton>
+                          </Tooltip>
+                        ) : (
+                          <Tooltip title="Publish">
+                            <IconButton
+                              sx={{ color: "green" }}
+                              onClick={() => openConfirmDialog("publish", n.id)}
+                            >
+                              <PublishIcon />
+                            </IconButton>
+                          </Tooltip>
+                        )}
+                        <Tooltip title="Delete">
+                          <IconButton
+                            sx={{ color: "red" }}
+                            onClick={() => openConfirmDialog("delete", n.id)}
+                          >
+                            <DeleteIcon />
+                          </IconButton>
+                        </Tooltip>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={3} align="center" sx={{ color: "gray" }}>
+                      No news found.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
+      </Container>
+
+      {/* Confirmation Dialog */}
+      <Dialog open={confirmDialog.open} onClose={closeConfirmDialog}>
+        <DialogTitle sx={{ fontWeight: "bold", color: "yellow", bgcolor: "#000" }}>
+          Confirm {confirmDialog.type?.toUpperCase()}
+        </DialogTitle>
+        <DialogContent sx={{ bgcolor: "#111", color: "white" }}>
+          Are you sure you want to{" "}
+          <b>{confirmDialog.type === "delete" ? "delete" : confirmDialog.type}</b>{" "}
+          this news post?
+        </DialogContent>
+        <DialogActions sx={{ bgcolor: "#000" }}>
+          <Button onClick={closeConfirmDialog} variant="outlined" sx={{ color: "yellow", borderColor: "yellow" }}>
+            Cancel
+          </Button>
+          <Button onClick={handleConfirmAction} variant="contained" sx={{ bgcolor: "yellow", color: "black" }}>
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Snackbar Alerts */}
+      <Snackbar open={newNewsAlert} autoHideDuration={3000} onClose={() => setNewNewsAlert(false)}>
+        <Alert severity="info" sx={{ width: "100%" }}>
+          New news item added!
+        </Alert>
+      </Snackbar>
+
+      <Snackbar open={publishSuccessAlert} autoHideDuration={3000} onClose={() => setPublishSuccessAlert(false)}>
+        <Alert severity="success" sx={{ width: "100%" }}>
+          News published successfully!
+        </Alert>
+      </Snackbar>
+
+      <Snackbar open={unpublishSuccessAlert} autoHideDuration={3000} onClose={() => setUnpublishSuccessAlert(false)}>
+        <Alert severity="info" sx={{ width: "100%" }}>
+          News unpublished successfully!
+        </Alert>
+      </Snackbar>
+
+      <Snackbar open={deleteSuccessAlert} autoHideDuration={3000} onClose={() => setDeleteSuccessAlert(false)}>
+        <Alert severity="warning" sx={{ width: "100%" }}>
+          News deleted successfully!
+        </Alert>
+      </Snackbar>
+
+      <Box
+        component="footer"
+        sx={{
+          flexShrink: 0,
+          py: 2,
+          textAlign: "center",
+          color: "gray",
+          fontSize: "0.8rem",
+          borderTop: "1px solid rgba(255,255,255,0.1)",
+        }}
+      >
+        © 2025 Community Portal — Admin News Panel
+      </Box>
+    </Box>
+  );
+}
+
+
+=====================================
+
+//this is for the mobile design of news 
+
+import React, { useState } from "react";
+import {
+  Paper, Box, Typography, IconButton, Collapse, Divider, Tooltip,
+} from "@mui/material";
+import PublishIcon from "@mui/icons-material/Publish";
+import UnpublishedIcon from "@mui/icons-material/Unpublished";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
+
+export default function NewsListMobile({ news, setConfirmDialog }) {
+  const [expanded, setExpanded] = useState([]);
+
+  const toggleExpand = (id) =>
+    setExpanded((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+
+  return news.length > 0 ? (
+    news.map((n) => {
+      const isExpanded = expanded.includes(n.id);
+      return (
+        <Paper key={n.id} sx={{ p: 2, mt: 2, bgcolor: "#1a1a1a", color: "white", borderRadius: 2 }}>
+          <Box display="flex" justifyContent="space-between" onClick={() => toggleExpand(n.id)}>
+            <Box>
+              <Typography fontWeight="bold">{n.title}</Typography>
+              <Typography sx={{ color: n.status === "Published" ? "#00e676" : "#ffb74d" }}>
+                {n.status}
+              </Typography>
+            </Box>
+            <IconButton sx={{ color: "yellow" }}>
+              {isExpanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+            </IconButton>
+          </Box>
+          <Collapse in={isExpanded}>
+            <Divider sx={{ my: 1 }} />
+            <Typography variant="body2" color="gray">{n.content}</Typography>
+            <Box display="flex" justifyContent="space-around" mt={1.5}>
+              <Tooltip title="Edit">
+                <IconButton sx={{ color: "orange" }}>
+                  <EditIcon />
+                </IconButton>
+              </Tooltip>
+              {n.status === "Published" ? (
+                <Tooltip title="Unpublish">
+                  <IconButton sx={{ color: "red" }} onClick={() => setConfirmDialog({ open: true, type: "unpublish", id: n.id })}>
+                    <UnpublishedIcon />
+                  </IconButton>
+                </Tooltip>
+              ) : (
+                <Tooltip title="Publish">
+                  <IconButton sx={{ color: "green" }} onClick={() => setConfirmDialog({ open: true, type: "publish", id: n.id })}>
+                    <PublishIcon />
+                  </IconButton>
+                </Tooltip>
+              )}
+              <Tooltip title="Delete">
+                <IconButton sx={{ color: "red" }} onClick={() => setConfirmDialog({ open: true, type: "delete", id: n.id })}>
+                  <DeleteIcon />
+                </IconButton>
+              </Tooltip>
+            </Box>
+          </Collapse>
+        </Paper>
+      );
+    })
+  ) : (
+    <Typography sx={{ color: "gray", textAlign: "center", mt: 3 }}>No news found.</Typography>
+  );
+}
+
+
