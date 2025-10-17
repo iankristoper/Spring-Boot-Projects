@@ -12,7 +12,7 @@ import ReportIcon from "@mui/icons-material/Report";
 import SecurityIcon from "@mui/icons-material/Security";
 import PeopleIcon from "@mui/icons-material/People";
 import InfoIcon from "@mui/icons-material/Info";
-import Footer from "../components/Footer";
+import Footer from "../../../components/Footer";
 
 
 

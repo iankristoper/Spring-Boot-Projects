@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import Footer from "../components/Footer";
+import Footer from "../../../components/Footer";
 
 export default function Feed() {
   const navigate = useNavigate();

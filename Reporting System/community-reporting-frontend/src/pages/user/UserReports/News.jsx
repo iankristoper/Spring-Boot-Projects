@@ -2,7 +2,7 @@ import React from "react";
 import { Box, Typography, Paper, Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import DynamicFeedIcon from "@mui/icons-material/DynamicFeed";
-import Footer from "../components/Footer";
+import Footer from "../../../components/Footer";
 
 
 

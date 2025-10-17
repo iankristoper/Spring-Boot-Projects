@@ -16,7 +16,7 @@ import {
 
 import CloseIcon from "@mui/icons-material/Close";
 import axios from "axios";
-import MapboxLocationPicker from "../components/MapboxLocationPicker";
+import MapboxLocationPicker from "../../../components/MapboxLocationPicker";
 
 
 

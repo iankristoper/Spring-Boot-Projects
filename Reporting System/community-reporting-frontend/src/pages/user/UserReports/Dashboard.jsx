@@ -3,7 +3,7 @@ import { Container, Paper, Typography, Button, Box, Stack } from "@mui/material"
 import DynamicFeedIcon from "@mui/icons-material/DynamicFeed";
 import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
 import BarChartIcon from "@mui/icons-material/BarChart"; 
-import useSessionTimeout from "../hooks/useSessionTimeout";
+import useSessionTimeout from "../../../hooks/useSessionTimeout";
 import { useNavigate } from "react-router-dom";
 
 

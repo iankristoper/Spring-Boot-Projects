@@ -1,102 +1,135 @@
 import React, { useState, useEffect, useRef } from "react";
+import { Box, Container, Snackbar, Alert, useMediaQuery } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
+import { useNavigate } from "react-router-dom";
+import HeaderBar from "../AdminManageReports/components/HeaderBar";
+import FiltersBar from "../AdminManageReports/components/FiltersBar";
+import ReportsTable from "../AdminManageReports/components/ReportsTable";
+import ReportsMobileList from "../AdminManageReports/components/ReportsMobileList";
+import PaginationBar from "../AdminManageReports/components/PaginationBar";
+import FooterBar from "../AdminManageReports/components/FooterBar";
+import ConfirmResolveDialog from "../AdminManageReports/dialogs/ConfirmResolveDialog";
+import ConfirmDeleteDialog from "../AdminManageReports/dialogs/ConfirmDeleteDialog";
+import ConfirmArchiveDialog from "../AdminManageReports/dialogs/ConfirmArchiveDialog";
+import useReportsFetch from "../AdminManageReports/hooks/useReportsFetch";
+import getPriorityColor from "../AdminManageReports/util/getPriorityColor";
 import axios from "axios";
-import { Box, Container, useMediaQuery, useTheme, Snackbar, Alert } from "@mui/material";
-import ReportsTable from "./ReportsTable";
-import ReportsListMobile from "./ReportsListMobile";
-import ConfirmationDialog from "./ConfirmationDialog";
-import SnackbarAlert from "../../common/SnackbarAlert";
-import { getPriorityColor, getStatusColor } from "../../utils/colorHelpers";
+
 
 export default function AdminManageReports() {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const {
+    reports,
+    setReports,
+    newReportAlert,
+    setNewReportAlert,
+    previousIdsRef
+  } = useReportsFetch();
 
-  const [reports, setReports] = useState([]);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
+  const [expandedIds, setExpandedIds] = useState([]);
+  const [resolveSuccessAlert, setResolveSuccessAlert] = useState(false);
+  const [archiveSuccessAlert, setArchiveSuccessAlert] = useState(false);
 
-  const [confirmDialog, setConfirmDialog] = useState({ open: false, reportId: null, type: null });
-  const [alert, setAlert] = useState({ open: false, message: "", severity: "info" });
+  const [deleteDialog, setDeleteDialog] = useState({ open: false, reportId: null, password: "" });
+  const [confirmDialog, setConfirmDialog] = useState({ open: false, reportId: null });
+  const [archiveDialog, setArchiveDialog] = useState({ open: false, reportId: null });
 
-  const previousIdsRef = useRef([]);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  // Fetch reports
-  useEffect(() => {
-    const fetchReports = () => {
-      axios
-        .get(`${import.meta.env.VITE_API_BASE_URL}/api/reports/fetch_all`, { withCredentials: true })
-        .then((res) => {
-          const sorted = res.data.sort((a, b) => (a.status === "Resolved" ? 1 : -1));
-          previousIdsRef.current = sorted.map((r) => r.id);
-          setReports(sorted);
-        })
-        .catch(() => setAlert({ open: true, message: "Failed to fetch reports", severity: "error" }));
-    };
-    fetchReports();
-    const interval = setInterval(fetchReports, 5000);
-    return () => clearInterval(interval);
-  }, []);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const navigate = useNavigate();
 
-  // Filter logic
   const filteredReports = reports.filter((r) => {
-    const matchSearch = r.title?.toLowerCase().includes(search.toLowerCase()) ||
-                        r.description?.toLowerCase().includes(search.toLowerCase());
-    const matchFilter = filter === "All" || r.status === filter;
-    return matchSearch && matchFilter;
+    const matchesSearch =
+      r.title?.toLowerCase().includes(search.toLowerCase()) ||
+      r.description?.toLowerCase().includes(search.toLowerCase());
+    const matchesFilter = filter === "All" || r.status === filter;
+    return matchesSearch && matchesFilter;
   });
 
-  // Actions
-  const handleConfirmAction = (id, type) => setConfirmDialog({ open: true, reportId: id, type });
-
-  const handleActionConfirmed = () => {
-    const { reportId, type } = confirmDialog;
-    let url = "", method = "put";
-
-    if (type === "resolve") url = `/api/admin/update/report-status/${reportId}`;
-    if (type === "archive") url = `/api/admin/update/archive-status/${reportId}`;
-    if (type === "delete") { url = `/api/admin/report/delete/${reportId}`; method = "delete"; }
-
-    axios[method](`${import.meta.env.VITE_API_BASE_URL}${url}`, { withCredentials: true })
-      .then(() => {
-        setReports((prev) => prev.filter((r) => r.id !== reportId));
-        setAlert({ open: true, message: `Report ${type}d successfully`, severity: "success" });
-      })
-      .catch(() => setAlert({ open: true, message: `Failed to ${type} report`, severity: "error" }))
-      .finally(() => setConfirmDialog({ open: false, reportId: null, type: null }));
-  };
+  const paginatedReports = filteredReports.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
   return (
-    <Box sx={{ bgcolor: "background.default", minHeight: "100vh" }}>
-      <Container maxWidth="lg" sx={{ py: 3 }}>
+    <Box sx={{ minHeight: "100vh", bgcolor: isMobile ? "#0d0d0d" : "background.default", display: "flex", flexDirection: "column" }}>
+      <Container maxWidth="lg" sx={{ mt: 3, mb: 4, flex: 1 }}>
+        <HeaderBar navigate={navigate} isMobile={isMobile} />
+        <FiltersBar search={search} setSearch={setSearch} filter={filter} setFilter={setFilter} />
+
         {isMobile ? (
-          <ReportsListMobile
+          <ReportsMobileList
             reports={filteredReports}
-            search={search}
-            filter={filter}
-            setSearch={setSearch}
-            setFilter={setFilter}
-            onAction={handleConfirmAction}
+            expandedIds={expandedIds}
+            toggleExpand={(id) =>
+              setExpandedIds((prev) =>
+                prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+              )
+            }
+            handleViewDetails={(id) => navigate(`/admin/reports/${id}`)}
+            openDeleteConfirm={(id) => setDeleteDialog({ open: true, reportId: id, password: "" })}
+            openConfirmResolve={(id) => setConfirmDialog({ open: true, reportId: id })}
+            openArchiveConfirm={(id) => setArchiveDialog({ open: true, reportId: id })}
+            handleVerifySoon={(id) => navigate(`/admin/reports/verify/${id}`)}
+            getPriorityColor={getPriorityColor}
           />
         ) : (
           <ReportsTable
-            reports={filteredReports}
-            search={search}
-            filter={filter}
-            setSearch={setSearch}
-            setFilter={setFilter}
-            onAction={handleConfirmAction}
+            reports={paginatedReports}
+            handleViewDetails={(id) => navigate(`/admin/reports/${id}`)}
+            openDeleteConfirm={(id) => setDeleteDialog({ open: true, reportId: id, password: "" })}
+            openConfirmResolve={(id) => setConfirmDialog({ open: true, reportId: id })}
+            openArchiveConfirm={(id) => setArchiveDialog({ open: true, reportId: id })}
+            handleVerifySoon={(id) => navigate(`/admin/reports/verify/${id}`)}
+            getPriorityColor={getPriorityColor}
+          />
+        )}
+
+        {!isMobile && (
+          <PaginationBar
+            filteredReports={filteredReports}
+            rowsPerPage={rowsPerPage}
+            setRowsPerPage={setRowsPerPage}
+            page={page}
+            setPage={setPage}
           />
         )}
       </Container>
 
-      <ConfirmationDialog
-        open={confirmDialog.open}
-        type={confirmDialog.type}
-        onConfirm={handleActionConfirmed}
-        onClose={() => setConfirmDialog({ open: false, reportId: null, type: null })}
+      {/* Dialogs */}
+      <ConfirmResolveDialog
+        confirmDialog={confirmDialog}
+        closeConfirmDialog={() => setConfirmDialog({ open: false, reportId: null })}
+        setReports={setReports}
+        setResolveSuccessAlert={setResolveSuccessAlert}
+      />
+      <ConfirmDeleteDialog
+        deleteDialog={deleteDialog}
+        closeDeleteDialog={() => setDeleteDialog({ open: false, reportId: null, password: "" })}
+        setReports={setReports}
+      />
+      <ConfirmArchiveDialog
+        archiveDialog={archiveDialog}
+        closeArchiveDialog={() => setArchiveDialog({ open: false, reportId: null })}
+        setReports={setReports}
+        setArchiveSuccessAlert={setArchiveSuccessAlert}
       />
 
-      <SnackbarAlert alert={alert} setAlert={setAlert} />
+      {/* Alerts */}
+      <Snackbar open={newReportAlert} autoHideDuration={3000} onClose={() => setNewReportAlert(false)}>
+        <Alert severity="info">New report added!</Alert>
+      </Snackbar>
+
+      <Snackbar open={resolveSuccessAlert} autoHideDuration={3000} onClose={() => setResolveSuccessAlert(false)}>
+        <Alert severity="success">Report marked as resolved!</Alert>
+      </Snackbar>
+
+      <Snackbar open={archiveSuccessAlert} autoHideDuration={3000} onClose={() => setArchiveSuccessAlert(false)}>
+        <Alert severity="info">Report archived successfully!</Alert>
+      </Snackbar>
+
+      <FooterBar />
     </Box>
   );
 }

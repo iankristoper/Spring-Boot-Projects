@@ -2,7 +2,7 @@ import React from "react";
 import { Box, Typography, Paper, Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import BarChartIcon from "@mui/icons-material/BarChart";
-import Footer from "../components/Footer";
+import Footer from "../../../components/Footer";
 
 
 

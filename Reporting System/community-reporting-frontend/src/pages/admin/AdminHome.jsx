@@ -20,7 +20,7 @@ import useSessionTimeout from "../../hooks/useSessionTimeout";
 
 export default function AdminHome() {
 
-  useSessionTimeout(3600000); // 1 hour inactivity
+  useSessionTimeout(7200000); // 1 hour inactivity
   const navigate = useNavigate();
 
   const cards = [

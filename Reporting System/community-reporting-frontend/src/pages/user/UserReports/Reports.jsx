@@ -32,7 +32,7 @@ import ReportForm from "./ReportForm";
 import { useTheme } from "@mui/material/styles";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { useNavigate } from "react-router-dom";
-import EditReportForm from "../components/EditReport";
+import EditReportForm from "../../../components/EditReport";
 
 
 
