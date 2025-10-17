@@ -1,40 +1,93 @@
 import React from "react";
-import { Box, Typography, Button, Divider } from "@mui/material";
-import AddBoxIcon from "@mui/icons-material/AddBox";
-import ListAltIcon from "@mui/icons-material/ListAlt";
+import { Paper, Box, IconButton, Button, Typography } from "@mui/material";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import ArchiveIcon from "@mui/icons-material/Archive";
 
-export default function HeaderBar({ navigate, isMobile }) {
+export default function HeaderBar({ isMobile, navigate }) {
   return (
-    <>
-      <Typography variant="h5" fontWeight="bold" sx={{ color: "yellow", mb: 1 }}>
-        Manage Reports
-      </Typography>
-      <Typography variant="body2" sx={{ color: "gray", mb: 2 }}>
-        View, verify, resolve, archive, or delete citizen reports.
-      </Typography>
-
-      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<AddBoxIcon />}
-          onClick={() => navigate("/admin/reports/new")}
+    <Paper
+      elevation={3}
+      sx={{
+        p: { xs: 2, sm: 3 },
+        borderRadius: "16px",
+        bgcolor: "black",
+        color: "white",
+        position: "relative",
+      }}
+    >
+      {isMobile && (
+        <IconButton
+          onClick={() => navigate("/admin/admin-home")}
+          sx={{
+            position: "absolute",
+            top: 12,
+            left: 12,
+            color: "yellow",
+            bgcolor: "black",
+            border: "1px solid yellow",
+            "&:hover": { bgcolor: "#222" },
+          }}
+          size="small"
         >
-          Create Report
-        </Button>
-        {!isMobile && (
-          <Button
-            variant="outlined"
-            color="secondary"
-            startIcon={<ListAltIcon />}
-            onClick={() => navigate("/admin/reports/archive")}
-          >
-            View Archived
-          </Button>
-        )}
-      </Box>
+          <ArrowBackIcon fontSize="small" />
+        </IconButton>
+      )}
 
-      <Divider sx={{ mb: 3, borderColor: "#333" }} />
-    </>
+      <Box
+        display="flex"
+        alignItems="center"
+        justifyContent={isMobile ? "center" : "space-between"}
+        flexWrap="wrap"
+        gap={1}
+      >
+        {/* Left Section */}
+        {!isMobile && (
+          <Box display="flex" alignItems="center" gap={1.5}>
+            <Button
+              startIcon={<ArrowBackIcon />}
+              variant="outlined"
+              size="medium"
+              sx={{
+                color: "yellow",
+                borderColor: "yellow",
+                "&:hover": { borderColor: "white", color: "white" },
+              }}
+              onClick={() => navigate("/admin/admin-home")}
+            >
+              Back
+            </Button>
+
+            {/* New Archive Button (matches theme) */}
+            <Button
+              startIcon={<ArchiveIcon />}
+              variant="outlined"
+              size="medium"
+              sx={{
+                color: "yellow",
+                borderColor: "yellow",
+                "&:hover": { borderColor: "white", color: "white" },
+              }}
+              onClick={() => navigate("/admin/archive")}
+            >
+              Archive
+            </Button>
+          </Box>
+        )}
+
+        {/* Title */}
+        <Typography
+          variant={isMobile ? "h6" : "h5"}
+          fontWeight="bold"
+          sx={{
+            color: "yellow",
+            textAlign: isMobile ? "center" : "right",
+            width: isMobile ? "100%" : "auto",
+            letterSpacing: "0.5px",
+          }}
+        >
+          Manage Reports
+        </Typography>
+      </Box>
+    </Paper>
   );
 }

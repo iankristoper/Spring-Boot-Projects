@@ -1,30 +1,84 @@
 import React from "react";
-import { Dialog, DialogTitle, DialogActions, Button, Typography } from "@mui/material";
-import axios from "axios";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Typography,
+  Button,
+} from "@mui/material";
 
-export default function ConfirmResolveDialog({ confirmDialog, closeConfirmDialog, setReports, setResolveSuccessAlert }) {
-  const handleConfirmResolve = () => {
-    axios
-      .put(`http://localhost:8080/api/reports/resolve/${confirmDialog.reportId}`, {}, { withCredentials: true })
-      .then(() => {
-        setReports((prev) =>
-          prev.map((r) => (r.id === confirmDialog.reportId ? { ...r, status: "Resolved" } : r))
-        );
-        setResolveSuccessAlert(true);
-        closeConfirmDialog();
-      })
-      .catch((err) => console.error("Error resolving report", err));
-  };
-
+export default function ConfirmResolveDialog({
+  confirmDialog,
+  closeConfirmDialog,
+  confirmResolve,
+}) {
   return (
-    <Dialog open={confirmDialog.open} onClose={closeConfirmDialog}>
-      <DialogTitle>Confirm Resolve</DialogTitle>
-      <Typography sx={{ p: 2 }}>
-        Are you sure you want to mark this report as <b>Resolved</b>?
-      </Typography>
-      <DialogActions>
-        <Button onClick={closeConfirmDialog}>Cancel</Button>
-        <Button variant="contained" color="success" onClick={handleConfirmResolve}>
+    <Dialog
+      open={confirmDialog.open}
+      onClose={closeConfirmDialog}
+      PaperProps={{
+        sx: {
+          bgcolor: "#0d0d0d", // dark background
+          color: "white",
+          //border: "1px solid rgba(255,255,0,0.4)",
+          borderRadius: "12px",
+          //boxShadow: "0 0 12px rgba(255,255,0,0.2)",
+        },
+      }}
+    >
+      <DialogTitle
+        sx={{
+          fontWeight: "bold",
+          color: "yellow",
+          borderBottom: "1px solid rgba(255,255,0,0.2)",
+        }}
+      >
+        Confirm Resolution
+      </DialogTitle>
+
+      <DialogContent sx={{ mt: 1 }}>
+        <Typography sx={{ color: "white", fontSize: "0.95rem" }}>
+          Are you sure you want to mark this report as{" "}
+          <b style={{ color: "#00e676" }}>Resolved</b>?
+        </Typography>
+      </DialogContent>
+
+      <DialogActions
+        sx={{
+          borderTop: "1px solid rgba(255,255,0,0.2)",
+          p: 2,
+          justifyContent: "flex-end",
+        }}
+      >
+        <Button
+          onClick={closeConfirmDialog}
+          variant="outlined"
+          sx={{
+            color: "yellow",
+            borderColor: "yellow",
+            "&:hover": {
+              borderColor: "red",
+              color: "red",
+            },
+          }}
+        >
+          Cancel
+        </Button>
+
+        <Button
+          onClick={confirmResolve}
+          variant="contained"
+          sx={{
+            bgcolor: "yellow",
+            color: "black",
+            //fontWeight: "bold",
+            "&:hover": {
+              bgcolor: "#58ff3bff",
+              color: "black",
+            },
+          }}
+        >
           Confirm
         </Button>
       </DialogActions>

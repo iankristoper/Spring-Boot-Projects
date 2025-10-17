@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, TextField, MenuItem, Paper } from "@mui/material";
+import { Paper, TextField, MenuItem } from "@mui/material";
 
 export default function FiltersBar({ search, setSearch, filter, setFilter }) {
   return (
@@ -7,13 +7,12 @@ export default function FiltersBar({ search, setSearch, filter, setFilter }) {
       elevation={2}
       sx={{
         p: 2,
-        mb: 2,
         borderRadius: "12px",
         display: "flex",
         flexWrap: "wrap",
         gap: 2,
         alignItems: "center",
-        backgroundColor: "#1a1a1a",
+        justifyContent: "space-between",
       }}
     >
       <TextField
@@ -22,18 +21,12 @@ export default function FiltersBar({ search, setSearch, filter, setFilter }) {
         size="small"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        sx={{
-          flex: 1,
-          minWidth: 220,
-          "& .MuiOutlinedInput-root": {
-            "& fieldset": { borderColor: "#666" },
-            "&:hover fieldset": { borderColor: "#fff" },
-          },
-        }}
+        sx={{ flex: 1, minWidth: 220 }}
       />
       <TextField
         label="Filter by Status"
         select
+        variant="outlined"
         size="small"
         value={filter}
         onChange={(e) => setFilter(e.target.value)}

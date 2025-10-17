@@ -10,3 +10,25 @@ export default function FooterBar() {
     </Box>
   );
 }
+
+/**import React from "react";
+import { Box } from "@mui/material";
+
+export default function FooterBar() {
+  return (
+    <Box
+      component="footer"
+      sx={{
+        flexShrink: 0,
+        py: 2,
+        textAlign: "center",
+        color: "gray",
+        fontSize: "0.8rem",
+        borderTop: "1px solid rgba(255,255,255,0.1)",
+      }}
+    >
+      © 2025 Community Reporting App — Admin Portal
+    </Box>
+  );
+}
+ */
