@@ -1,3 +1,4 @@
+// ✅ All same imports as before
 import React, { useState, useEffect } from "react";
 import {
   Box,
@@ -17,9 +18,15 @@ import ReportsTable from "../AdminManageReports/components/ReportsTable";
 import ReportsMobileList from "../AdminManageReports/components/ReportsMobileList";
 import PaginationBar from "../AdminManageReports/components/PaginationBar";
 import FooterBar from "../AdminManageReports/components/FooterBar";
+
 import ConfirmResolveDialog from "../AdminManageReports/dialogs/ConfirmResolveDialog";
 import ConfirmDeleteDialog from "../AdminManageReports/dialogs/ConfirmDeleteDialog";
 import ConfirmArchiveDialog from "../AdminManageReports/dialogs/ConfirmArchiveDialog";
+
+import BulkResolveDialog from "../AdminManageReports/dialogs/BulkResolveDialog";
+import BulkArchiveDialog from "../AdminManageReports/dialogs/BulkArchiveDialog";
+import BulkDeleteDialog from "../AdminManageReports/dialogs/BulkDeleteDialog";
+
 import useReportsFetch from "../AdminManageReports/hooks/useReportsFetch";
 import getPriorityColor from "../AdminManageReports/util/getPriorityColor";
 import axios from "axios";
@@ -29,12 +36,7 @@ import ArchiveIcon from "@mui/icons-material/Archive";
 import DeleteIcon from "@mui/icons-material/Delete";
 
 export default function AdminManageReports() {
-  const {
-    reports,
-    setReports,
-    newReportAlert,
-    setNewReportAlert,
-  } = useReportsFetch();
+  const { reports, setReports, newReportAlert, setNewReportAlert } = useReportsFetch();
 
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
@@ -42,20 +44,15 @@ export default function AdminManageReports() {
   const [resolveSuccessAlert, setResolveSuccessAlert] = useState(false);
   const [archiveSuccessAlert, setArchiveSuccessAlert] = useState(false);
 
-  // Dialog states
-  const [deleteDialog, setDeleteDialog] = useState({
-    open: false,
-    reportId: null,
-    password: "",
-  });
-  const [confirmDialog, setConfirmDialog] = useState({
-    open: false,
-    reportId: null,
-  });
-  const [archiveDialog, setArchiveDialog] = useState({
-    open: false,
-    reportId: null,
-  });
+  // ✅ Single-action dialogs
+  const [confirmDialog, setConfirmDialog] = useState({ open: false, reportIds: [] });
+  const [archiveDialog, setArchiveDialog] = useState({ open: false, reportIds: [] });
+  const [deleteDialog, setDeleteDialog] = useState({ open: false, reportIds: [], password: "" });
+
+  // ✅ Bulk-action dialogs
+  const [bulkResolveDialog, setBulkResolveDialog] = useState({ open: false, reportIds: [] });
+  const [bulkArchiveDialog, setBulkArchiveDialog] = useState({ open: false, reportIds: [] });
+  const [bulkDeleteDialog, setBulkDeleteDialog] = useState({ open: false, reportIds: [] });
 
   // Pagination
   const [page, setPage] = useState(0);
@@ -74,19 +71,17 @@ export default function AdminManageReports() {
     return matchesSearch && matchesFilter;
   });
 
-  // Reset pagination when filters/search change
   useEffect(() => {
     setPage(0);
   }, [search, filter]);
 
-  // Mobile expand toggle
   const toggleExpand = (id) => {
     setExpandedIds((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
   };
 
-  // Bulk selection logic
+  // Bulk selection
   const [selectedReports, setSelectedReports] = useState([]);
 
   const toggleSelectReport = (id) => {
@@ -105,33 +100,35 @@ export default function AdminManageReports() {
 
   const clearSelection = () => setSelectedReports([]);
 
-  // Bulk action handlers
+  // ✅ Bulk action handlers
   const handleBulkResolve = () => {
-    selectedReports.forEach((id) => {
-      setConfirmDialog({ open: true, reportId: id });
-    });
+    if (selectedReports.length === 0) return;
+    setBulkResolveDialog({ open: true, reportIds: [...selectedReports] });
     clearSelection();
   };
 
   const handleBulkArchive = () => {
-    selectedReports.forEach((id) => {
-      setArchiveDialog({ open: true, reportId: id });
-    });
+    if (selectedReports.length === 0) return;
+    setBulkArchiveDialog({ open: true, reportIds: [...selectedReports] });
     clearSelection();
   };
 
   const handleBulkDelete = () => {
-    selectedReports.forEach((id) => {
-      setDeleteDialog({ open: true, reportId: id, password: "" });
-    });
+    if (selectedReports.length === 0) return;
+    setBulkDeleteDialog({ open: true, reportIds: [...selectedReports] });
     clearSelection();
   };
 
-  // Pagination
+  // Pagination logic
   const paginatedReports = filteredReports.slice(
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage
   );
+
+  // ✅ Close handlers for bulk dialogs
+  const closeBulkResolveDialog = () => setBulkResolveDialog({ open: false, reportIds: [] });
+  const closeBulkArchiveDialog = () => setBulkArchiveDialog({ open: false, reportIds: [] });
+  const closeBulkDeleteDialog = () => setBulkDeleteDialog({ open: false, reportIds: [] });
 
   return (
     <Box
@@ -143,52 +140,27 @@ export default function AdminManageReports() {
       }}
     >
       <Container maxWidth="lg" sx={{ mt: 3, mb: 4, flex: 1 }}>
-        {/* Header */}
         <HeaderBar navigate={navigate} isMobile={isMobile} />
+        <FiltersBar search={search} setSearch={setSearch} filter={filter} setFilter={setFilter} />
 
-        {/* Filters */}
-        <FiltersBar
-          search={search}
-          setSearch={setSearch}
-          filter={filter}
-          setFilter={setFilter}
-        />
-
-        {/* Table or Mobile List */}
         {isMobile ? (
           <ReportsMobileList
             filteredReports={paginatedReports}
             getPriorityColor={getPriorityColor}
             handleViewDetails={(id) => navigate(`/admin/reports/${id}`)}
-            handleVerifySoon={(id) =>
-              navigate(`/admin/reports/verify/${id}`)
-            }
-            openConfirmResolve={(id) =>
-              setConfirmDialog({ open: true, reportId: id })
-            }
-            openArchiveConfirm={(id) =>
-              setArchiveDialog({ open: true, reportId: id })
-            }
-            openDeleteConfirm={(id) =>
-              setDeleteDialog({ open: true, reportId: id, password: "" })
-            }
+            handleVerifySoon={(id) => navigate(`/admin/reports/verify/${id}`)}
+            openConfirmResolve={(id) => setConfirmDialog({ open: true, reportIds: [id] })}
+            openArchiveConfirm={(id) => setArchiveDialog({ open: true, reportIds: [id] })}
+            openDeleteConfirm={(id) => setDeleteDialog({ open: true, reportIds: [id], password: "" })}
           />
         ) : (
           <ReportsTable
             reports={paginatedReports}
             handleViewDetails={(id) => navigate(`/admin/reports/${id}`)}
-            openDeleteConfirm={(id) =>
-              setDeleteDialog({ open: true, reportId: id, password: "" })
-            }
-            openConfirmResolve={(id) =>
-              setConfirmDialog({ open: true, reportId: id })
-            }
-            openArchiveConfirm={(id) =>
-              setArchiveDialog({ open: true, reportId: id })
-            }
-            handleVerifySoon={(id) =>
-              navigate(`/admin/reports/verify/${id}`)
-            }
+            openDeleteConfirm={(id) => setDeleteDialog({ open: true, reportIds: [id], password: "" })}
+            openConfirmResolve={(id) => setConfirmDialog({ open: true, reportIds: [id] })}
+            openArchiveConfirm={(id) => setArchiveDialog({ open: true, reportIds: [id] })}
+            handleVerifySoon={(id) => navigate(`/admin/reports/verify/${id}`)}
             getPriorityColor={getPriorityColor}
             selectedReports={selectedReports}
             toggleSelectReport={toggleSelectReport}
@@ -196,7 +168,7 @@ export default function AdminManageReports() {
           />
         )}
 
-        {/* Bulk Actions Bar */}
+        {/* ✅ Bulk Actions Bar */}
         {selectedReports.length > 0 && (
           <Box
             sx={{
@@ -224,10 +196,7 @@ export default function AdminManageReports() {
               </Tooltip>
 
               <Tooltip title="Archive Selected">
-                <IconButton
-                  sx={{ color: "#ffeb3b" }}
-                  onClick={handleBulkArchive}
-                >
+                <IconButton sx={{ color: "#ffeb3b" }} onClick={handleBulkArchive}>
                   <ArchiveIcon />
                 </IconButton>
               </Tooltip>
@@ -241,7 +210,6 @@ export default function AdminManageReports() {
           </Box>
         )}
 
-        {/* Pagination */}
         {!isMobile && (
           <PaginationBar
             filteredReports={filteredReports}
@@ -253,12 +221,10 @@ export default function AdminManageReports() {
         )}
       </Container>
 
-      {/* Dialogs */}
+      {/* ✅ Single dialogs */}
       <ConfirmResolveDialog
         confirmDialog={confirmDialog}
-        closeConfirmDialog={() =>
-          setConfirmDialog({ open: false, reportId: null })
-        }
+        closeConfirmDialog={() => setConfirmDialog({ open: false, reportIds: [] })}
         setReports={setReports}
         setResolveSuccessAlert={setResolveSuccessAlert}
       />
@@ -271,11 +237,30 @@ export default function AdminManageReports() {
 
       <ConfirmArchiveDialog
         archiveDialog={archiveDialog}
-        closeArchiveDialog={() =>
-          setArchiveDialog({ open: false, reportId: null })
-        }
+        closeArchiveDialog={() => setArchiveDialog({ open: false, reportIds: [] })}
         setReports={setReports}
         setArchiveSuccessAlert={setArchiveSuccessAlert}
+      />
+
+      {/* ✅ Bulk dialogs */}
+      <BulkResolveDialog
+        bulkResolveDialog={bulkResolveDialog}
+        closeBulkResolveDialog={closeBulkResolveDialog}
+        setReports={setReports}
+        setResolveSuccessAlert={setResolveSuccessAlert}
+      />
+
+      <BulkArchiveDialog
+        bulkArchiveDialog={bulkArchiveDialog}
+        closeBulkArchiveDialog={closeBulkArchiveDialog}
+        setReports={setReports}
+        setArchiveSuccessAlert={setArchiveSuccessAlert}
+      />
+
+      <BulkDeleteDialog
+        bulkDeleteDialog={bulkDeleteDialog}
+        closeBulkDeleteDialog={closeBulkDeleteDialog}
+        setReports={setReports}
       />
 
       {/* Alerts */}
@@ -292,7 +277,7 @@ export default function AdminManageReports() {
         autoHideDuration={3000}
         onClose={() => setResolveSuccessAlert(false)}
       >
-        <Alert severity="success">Report marked as resolved!</Alert>
+        <Alert severity="success">Report(s) resolved successfully!</Alert>
       </Snackbar>
 
       <Snackbar
@@ -300,10 +285,9 @@ export default function AdminManageReports() {
         autoHideDuration={3000}
         onClose={() => setArchiveSuccessAlert(false)}
       >
-        <Alert severity="info">Report archived successfully!</Alert>
+        <Alert severity="info">Report(s) archived successfully!</Alert>
       </Snackbar>
 
-      {/* Footer */}
       <FooterBar />
     </Box>
   );
