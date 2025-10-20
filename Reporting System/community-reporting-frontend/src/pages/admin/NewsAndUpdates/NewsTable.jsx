@@ -114,7 +114,7 @@ export default function NewsTable({ news, setConfirmDialog }) {
                     color: "gray",
                   }}
                 >
-                  <Typography variant="body1" sx={{ color: "gray", fontStyle: "italic" }}>
+                  <Typography variant="body1" sx={{ color: "gray" }}> {/** , fontStyle: "italic"*/}
                     No news found
                   </Typography>
                 </Box>

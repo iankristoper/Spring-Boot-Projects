@@ -3,12 +3,11 @@ import React, { useState, useEffect } from "react";
 import {
   Box,
   Container,
-  Snackbar,
-  Alert,
   useMediaQuery,
   Typography,
   IconButton,
   Tooltip,
+  Paper, 
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
@@ -27,6 +26,7 @@ import BulkResolveDialog from "../AdminManageReports/dialogs/BulkResolveDialog";
 import BulkArchiveDialog from "../AdminManageReports/dialogs/BulkArchiveDialog";
 import BulkDeleteDialog from "../AdminManageReports/dialogs/BulkDeleteDialog";
 
+import AlertsGroup from "../AdminManageReports/components/AlertsGroup"; //  New modular alert import
 import useReportsFetch from "../AdminManageReports/hooks/useReportsFetch";
 import getPriorityColor from "../AdminManageReports/util/getPriorityColor";
 import axios from "axios";
@@ -34,8 +34,15 @@ import axios from "axios";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import ArchiveIcon from "@mui/icons-material/Archive";
 import DeleteIcon from "@mui/icons-material/Delete";
+import Snackbar from "@mui/material/Snackbar";
+import MuiAlert from "@mui/material/Alert";
+import useResolveReport from "./hooks/useResolveReports";
+
+
 
 export default function AdminManageReports() {
+  const [bulkActionMessage, setBulkActionMessage] = useState("");
+
   const { reports, setReports, newReportAlert, setNewReportAlert } = useReportsFetch();
 
   const [search, setSearch] = useState("");
@@ -75,6 +82,30 @@ export default function AdminManageReports() {
     setPage(0);
   }, [search, filter]);
 
+  // ✅ Auto Refresh every 15 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      axios
+        .get("http://localhost:8080/api/reports/fetch_all")
+        .then((res) => setReports(res.data))
+        .catch((err) => console.error("Auto-refresh failed:", err));
+    }, 15000); // refresh every 15s
+
+    return () => clearInterval(interval);
+  }, [setReports]);
+
+  const { confirmResolve, loading, success, setSuccess } = useResolveReport({ setReports });
+
+
+  React.useEffect(() => {
+    if (success) {
+      setResolveSuccessAlert(true);
+      setSuccess(false); // reset flag
+    }
+  }, [success, setSuccess]);
+
+
+
   const toggleExpand = (id) => {
     setExpandedIds((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
@@ -100,24 +131,28 @@ export default function AdminManageReports() {
 
   const clearSelection = () => setSelectedReports([]);
 
-  // ✅ Bulk action handlers
+  // ✅ Bulk action handlers with Snackbar
   const handleBulkResolve = () => {
     if (selectedReports.length === 0) return;
     setBulkResolveDialog({ open: true, reportIds: [...selectedReports] });
+    setBulkActionMessage(`${selectedReports.length} report(s) selected for resolve.`);
     clearSelection();
   };
 
   const handleBulkArchive = () => {
     if (selectedReports.length === 0) return;
     setBulkArchiveDialog({ open: true, reportIds: [...selectedReports] });
+    setBulkActionMessage(`${selectedReports.length} report(s) selected for archive.`);
     clearSelection();
   };
 
   const handleBulkDelete = () => {
     if (selectedReports.length === 0) return;
     setBulkDeleteDialog({ open: true, reportIds: [...selectedReports] });
+    setBulkActionMessage(`${selectedReports.length} report(s) selected for delete.`);
     clearSelection();
   };
+
 
   // Pagination logic
   const paginatedReports = filteredReports.slice(
@@ -129,6 +164,8 @@ export default function AdminManageReports() {
   const closeBulkResolveDialog = () => setBulkResolveDialog({ open: false, reportIds: [] });
   const closeBulkArchiveDialog = () => setBulkArchiveDialog({ open: false, reportIds: [] });
   const closeBulkDeleteDialog = () => setBulkDeleteDialog({ open: false, reportIds: [] });
+
+  
 
   return (
     <Box
@@ -142,6 +179,81 @@ export default function AdminManageReports() {
       <Container maxWidth="lg" sx={{ mt: 3, mb: 4, flex: 1 }}>
         <HeaderBar navigate={navigate} isMobile={isMobile} />
         <FiltersBar search={search} setSearch={setSearch} filter={filter} setFilter={setFilter} />
+
+        {/* ✅ Status Legend (Improved Layout) */}
+        <Paper
+          elevation={0}
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+            p: 1.5,
+            mt: 1.5,
+            mb: 2,
+            borderRadius: 2,
+            backgroundColor: "rgba(255,255,255,0.03)",
+            border: "1px solid rgba(255,255,255,0.08)",
+          }}
+        >
+          <Typography
+            variant="body2"
+            sx={{
+              color: "#acacacff",
+              textTransform: "uppercase",
+              letterSpacing: 0.5,
+              fontWeight: 600,
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+              mr: 2,
+            }}
+          >
+            Actions Legend:
+          </Typography>
+
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 2.5,
+              flexWrap: "wrap",
+              color: "#bdbdbd",
+            }}
+          >
+            {[
+              { label: "View", color: "#36c6f6ff" },
+              { label: "Verify", color: "#ff9800" },
+              { label: "Resolve", color: "#4caf50" },
+              { label: "Archive", color: "#fff239ff" },
+              { label: "Delete", color: "#f44336" },
+            ].map((item, index) => (
+              <Box
+                key={item.label}
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                  position: "relative",
+                  "&:not(:last-child)::after": {
+                    content: '""',
+                    position: "absolute",
+                    right: -12,
+                    width: 1,
+                    height: 16,
+                    bgcolor: "rgba(255,255,255,0.1)",
+                  },
+                }}
+              >
+                <Box sx={{ width: 14, height: 14, bgcolor: item.color, borderRadius: "50%" }} />
+                <Typography variant="body2" sx={{ color: "#d0d0d0" }}>
+                  {item.label}
+                </Typography>
+              </Box>
+            ))}
+          </Box>
+        </Paper>
+
 
         {isMobile ? (
           <ReportsMobileList
@@ -168,47 +280,52 @@ export default function AdminManageReports() {
           />
         )}
 
-        {/* ✅ Bulk Actions Bar */}
-        {selectedReports.length > 0 && (
-          <Box
-            sx={{
-              bgcolor: "#000",
-              borderTop: "1px solid rgba(255,255,0,0.2)",
-              color: "yellow",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              px: 3,
-              py: 1.5,
-              borderRadius: "0 0 12px 12px",
-              mt: -1,
-            }}
-          >
-            <Typography sx={{ fontWeight: "bold" }}>
-              {selectedReports.length} selected
-            </Typography>
+        {/* ✅ Bulk Actions Bar (Fixed at bottom of screen) */}
+{selectedReports.length > 0 && (
+  <Box
+    sx={{
+      position: "fixed",
+      bottom: 0,
+      left: 0,
+      right: 0,
+      bgcolor: "#000",
+      borderTop: "1px solid rgba(255,255,0,0.2)",
+      color: "yellow",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      px: 3,
+      py: 1.5,
+      zIndex: 1300, // keep it above everything
+      boxShadow: "0 -2px 10px rgba(0,0,0,0.5)",
+    }}
+  >
+    <Typography sx={{ fontWeight: "bold" }}>
+      {selectedReports.length} selected
+    </Typography>
 
-            <Box sx={{ display: "flex", gap: 1 }}>
-              <Tooltip title="Resolve Selected">
-                <IconButton sx={{ color: "green" }} onClick={handleBulkResolve}>
-                  <CheckCircleIcon />
-                </IconButton>
-              </Tooltip>
+    <Box sx={{ display: "flex", gap: 1 }}>
+      <Tooltip title="Resolve Selected">
+        <IconButton sx={{ color: "green" }} onClick={handleBulkResolve}>
+          <CheckCircleIcon />
+        </IconButton>
+      </Tooltip>
 
-              <Tooltip title="Archive Selected">
-                <IconButton sx={{ color: "#ffeb3b" }} onClick={handleBulkArchive}>
-                  <ArchiveIcon />
-                </IconButton>
-              </Tooltip>
+      <Tooltip title="Archive Selected">
+        <IconButton sx={{ color: "#ffeb3b" }} onClick={handleBulkArchive}>
+          <ArchiveIcon />
+        </IconButton>
+      </Tooltip>
 
-              <Tooltip title="Delete Selected">
-                <IconButton sx={{ color: "red" }} onClick={handleBulkDelete}>
-                  <DeleteIcon />
-                </IconButton>
-              </Tooltip>
-            </Box>
-          </Box>
-        )}
+      <Tooltip title="Delete Selected">
+        <IconButton sx={{ color: "red" }} onClick={handleBulkDelete}>
+          <DeleteIcon />
+        </IconButton>
+      </Tooltip>
+    </Box>
+  </Box>
+)}
+
 
         {!isMobile && (
           <PaginationBar
@@ -221,13 +338,19 @@ export default function AdminManageReports() {
         )}
       </Container>
 
-      {/* ✅ Single dialogs */}
+
+      {/* ✅ Dialogs */}
+
       <ConfirmResolveDialog
         confirmDialog={confirmDialog}
         closeConfirmDialog={() => setConfirmDialog({ open: false, reportIds: [] })}
-        setReports={setReports}
-        setResolveSuccessAlert={setResolveSuccessAlert}
+        confirmResolve={() =>
+          confirmResolve(confirmDialog.reportIds || [], () =>
+            setConfirmDialog({ open: false, reportIds: [] })
+          )
+        }
       />
+
 
       <ConfirmDeleteDialog
         deleteDialog={deleteDialog}
@@ -242,7 +365,6 @@ export default function AdminManageReports() {
         setArchiveSuccessAlert={setArchiveSuccessAlert}
       />
 
-      {/* ✅ Bulk dialogs */}
       <BulkResolveDialog
         bulkResolveDialog={bulkResolveDialog}
         closeBulkResolveDialog={closeBulkResolveDialog}
@@ -263,30 +385,34 @@ export default function AdminManageReports() {
         setReports={setReports}
       />
 
-      {/* Alerts */}
+      {/* ✅ Modular Alerts */}
+      <AlertsGroup
+        newReportAlert={newReportAlert}
+        setNewReportAlert={setNewReportAlert}
+        resolveSuccessAlert={resolveSuccessAlert}
+        setResolveSuccessAlert={setResolveSuccessAlert}
+        archiveSuccessAlert={archiveSuccessAlert}
+        setArchiveSuccessAlert={setArchiveSuccessAlert}
+      />
+
+      {/* ✅ Bulk Actions Snackbar */}
       <Snackbar
-        open={newReportAlert}
+        open={!!bulkActionMessage}
         autoHideDuration={3000}
-        onClose={() => setNewReportAlert(false)}
+        onClose={() => setBulkActionMessage("")}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
-        <Alert severity="info">New report added!</Alert>
+        <MuiAlert
+          elevation={6}
+          variant="filled"
+          onClose={() => setBulkActionMessage("")}
+          severity="info"
+          sx={{ width: "100%" }}
+        >
+          {bulkActionMessage}
+        </MuiAlert>
       </Snackbar>
 
-      <Snackbar
-        open={resolveSuccessAlert}
-        autoHideDuration={3000}
-        onClose={() => setResolveSuccessAlert(false)}
-      >
-        <Alert severity="success">Report(s) resolved successfully!</Alert>
-      </Snackbar>
-
-      <Snackbar
-        open={archiveSuccessAlert}
-        autoHideDuration={3000}
-        onClose={() => setArchiveSuccessAlert(false)}
-      >
-        <Alert severity="info">Report(s) archived successfully!</Alert>
-      </Snackbar>
 
       <FooterBar />
     </Box>

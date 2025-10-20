@@ -2,6 +2,7 @@ import React from "react";
 import { Paper, Box, IconButton, Button, Typography } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArchiveIcon from "@mui/icons-material/Archive";
+import HistoryIcon from "@mui/icons-material/History"; // 🕓 Added for the log button
 
 export default function HeaderBar({ isMobile, navigate }) {
   return (
@@ -43,6 +44,7 @@ export default function HeaderBar({ isMobile, navigate }) {
         {/* Left Section */}
         {!isMobile && (
           <Box display="flex" alignItems="center" gap={1.5}>
+            {/* Back Button */}
             <Button
               startIcon={<ArrowBackIcon />}
               variant="outlined"
@@ -57,7 +59,7 @@ export default function HeaderBar({ isMobile, navigate }) {
               Back
             </Button>
 
-            {/* New Archive Button (matches theme) */}
+            {/* Archive Button */}
             <Button
               startIcon={<ArchiveIcon />}
               variant="outlined"
@@ -70,6 +72,21 @@ export default function HeaderBar({ isMobile, navigate }) {
               onClick={() => navigate("/admin/archive")}
             >
               Archive
+            </Button>
+
+            {/* 🕓 Activity Log Button */}
+            <Button
+              startIcon={<HistoryIcon />}
+              variant="outlined"
+              size="medium"
+              sx={{
+                color: "yellow",
+                borderColor: "yellow",
+                "&:hover": { borderColor: "white", color: "white" },
+              }}
+              onClick={() => navigate("/admin/activity-log")}
+            >
+              Activity Log
             </Button>
           </Box>
         )}

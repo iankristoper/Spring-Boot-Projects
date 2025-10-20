@@ -1,12 +1,13 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
-  Button,
   Typography,
+  Button,
   TextField,
+  Box,
 } from "@mui/material";
 import axios from "axios";
 
@@ -14,54 +15,119 @@ export default function BulkDeleteDialog({
   bulkDeleteDialog,
   closeBulkDeleteDialog,
   setReports,
-  setDeleteSuccessAlert,
 }) {
-  const { open, reportIds = [] } = bulkDeleteDialog;
-  const [password, setPassword] = useState("");
+  const [password, setPassword] = React.useState("");
 
-  const handleConfirm = async () => {
-    try {
-      await Promise.all(
-        reportIds.map((id) =>
-          axios.delete(`http://localhost:8080/api/reports/delete/${id}`, {
-            data: { password },
-          })
-        )
-      );
+  // Confirm bulk delete
+  const confirmBulkDelete = () => {
+    const { reportIds } = bulkDeleteDialog;
 
-      setReports((prev) =>
-        prev.filter((r) => !reportIds.includes(r.id))
-      );
-
-      setDeleteSuccessAlert(true);
+    if (!reportIds || reportIds.length === 0) {
+      console.error("No reports selected for bulk delete.");
       closeBulkDeleteDialog();
-    } catch (error) {
-      console.error(error);
+      return;
     }
+
+    axios
+      .delete("http://localhost:8080/api/admin/report/delete/bulk", {
+        data: { reportIds, password },
+        withCredentials: true,
+      })
+      .then(() => {
+        setReports((prev) => prev.filter((r) => !reportIds.includes(r.id)));
+        setPassword("");
+        closeBulkDeleteDialog();
+      })
+      .catch((err) => {
+        if (err.response?.status === 401) {
+          alert("Incorrect password. Please try again.");
+        } else {
+          console.error("Failed to bulk delete reports", err);
+          alert("Failed to delete reports. Check console for details.");
+        }
+      });
   };
 
   return (
-    <Dialog open={open} onClose={closeBulkDeleteDialog}>
-      <DialogTitle>Confirm Bulk Delete</DialogTitle>
-      <DialogContent>
-        <Typography mb={2}>
-          This will permanently delete {reportIds.length} selected reports.
+    <Dialog
+      open={bulkDeleteDialog.open}
+      onClose={closeBulkDeleteDialog}
+      PaperProps={{
+        sx: {
+          bgcolor: "#0d0d0d",
+          color: "white",
+          borderRadius: "12px",
+        },
+      }}
+    >
+      <DialogTitle
+        sx={{
+          fontWeight: "bold",
+          color: "red",
+          borderBottom: "1px solid rgba(255,0,0,0.2)",
+        }}
+      >
+        Confirm Bulk Delete
+      </DialogTitle>
+
+      <DialogContent sx={{ mt: 1 }}>
+        <Typography sx={{ color: "white", mb: 2 }}>
+          You are about to permanently delete{" "}
+          <strong>{bulkDeleteDialog.reportIds?.length || 0}</strong> report(s).{" "}
+          This action cannot be undone.  
+          Please enter your admin password to confirm.
         </Typography>
+
         <TextField
-          label="Enter Admin Password"
           type="password"
-          fullWidth
+          label="Admin Password"
           variant="outlined"
+          fullWidth
+          size="small"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          sx={{
+            input: { color: "white" },
+            "& label": { color: "gray" },
+            "& .MuiOutlinedInput-root": {
+              "& fieldset": { borderColor: "red" },
+              "&:hover fieldset": { borderColor: "white" },
+            },
+          }}
         />
       </DialogContent>
-      <DialogActions>
-        <Button onClick={closeBulkDeleteDialog}>Cancel</Button>
+
+      <DialogActions
+        sx={{
+          borderTop: "1px solid rgba(255,0,0,0.2)",
+          p: 2,
+          justifyContent: "flex-end",
+        }}
+      >
         <Button
-          onClick={handleConfirm}
-          color="error"
+          onClick={() => {
+            setPassword("");
+            closeBulkDeleteDialog();
+          }}
+          variant="outlined"
+          sx={{
+            color: "red",
+            borderColor: "red",
+            "&:hover": { borderColor: "red", color: "red" },
+          }}
+        >
+          Cancel
+        </Button>
+
+        <Button
+          onClick={confirmBulkDelete}
           variant="contained"
+          sx={{
+            bgcolor: "red",
+            color: "white",
+            fontWeight: "bold",
+            "&:hover": { bgcolor: "#ff4444" },
+          }}
           disabled={!password}
         >
           Confirm Delete
