@@ -15,6 +15,7 @@ import {
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VerifiedIcon from "@mui/icons-material/Verified";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import ReplayIcon from "@mui/icons-material/Replay";
 import ArchiveIcon from "@mui/icons-material/Archive";
 import DeleteIcon from "@mui/icons-material/Delete";
 
@@ -25,6 +26,7 @@ export default function ReportsTable({
   openConfirmResolve,
   openArchiveConfirm,
   openDeleteConfirm,
+  handleReopen, // 👈 add this to props
   getPriorityColor,
   selectedReports,
   toggleSelectReport,
@@ -89,7 +91,16 @@ export default function ReportsTable({
                   />
                 </TableCell>
 
-                <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                <TableCell
+                  sx={{
+                    color: "white",
+                    fontWeight: "bold",
+                    maxWidth: "250px", // limit width to keep table layout clean
+                    whiteSpace: "normal", // allow wrapping
+                    wordWrap: "break-word", // break long words if needed
+                    overflowWrap: "break-word",
+                  }}
+                >
                   {report.title || "Untitled Report"}
                 </TableCell>
 
@@ -111,6 +122,7 @@ export default function ReportsTable({
                 </TableCell>
 
                 <TableCell align="center">
+                  {/* Common: View button stays always */}
                   <Tooltip title="View Details">
                     <IconButton
                       sx={{ color: "rgba(27, 217, 255, 1)" }}
@@ -120,24 +132,41 @@ export default function ReportsTable({
                     </IconButton>
                   </Tooltip>
 
-                  <Tooltip title="Verify">
-                    <IconButton
-                      sx={{ color: "orange" }}
-                      onClick={() => handleVerifySoon(report.id)}
-                    >
-                      <VerifiedIcon />
-                    </IconButton>
-                  </Tooltip>
+                  {/* Conditional logic based on status */}
+                  {report.status === "Resolved" ? (
+                    <>
+                      <Tooltip title="Reopen">
+                        <IconButton
+                          sx={{ color: "orange" }}
+                          onClick={() => handleReopen(report.id)}
+                        >
+                          <ReplayIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </>
+                  ) : (
+                    <>
+                      <Tooltip title="Verify">
+                        <IconButton
+                          sx={{ color: "orange" }}
+                          onClick={() => handleVerifySoon(report.id)}
+                        >
+                          <VerifiedIcon />
+                        </IconButton>
+                      </Tooltip>
 
-                  <Tooltip title="Resolve">
-                    <IconButton
-                      sx={{ color: "green" }}
-                      onClick={() => openConfirmResolve(report.id)}
-                    >
-                      <CheckCircleIcon />
-                    </IconButton>
-                  </Tooltip>
+                      <Tooltip title="Resolve">
+                        <IconButton
+                          sx={{ color: "green" }}
+                          onClick={() => openConfirmResolve(report.id)}
+                        >
+                          <CheckCircleIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </>
+                  )}
 
+                  {/* Common buttons */}
                   <Tooltip title="Archive">
                     <IconButton
                       sx={{ color: "#ffeb3b" }}

@@ -4,8 +4,9 @@ import Login from "./pages/auth/Login";
 import Signup from "./pages/auth/Signup";
 import Home from "./pages/homepage/Home";
 import Dashboard from "./pages/user/UserReports/Dashboard";
-import Navbar from "./components/Navbar";
-import DashboardNavbar from "./components/DashboardNavbar"; 
+import AdminNavbar from "./components/AdminNavbar";
+import HomeNavbar from "./components/HomeNavbar";
+import UserNavbar from "./components/UserNavbar"; 
 import Reports from "./pages/user/UserReports/Reports";
 import "leaflet/dist/leaflet.css";
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -21,6 +22,8 @@ import AdminManageReports from "./pages/admin/AdminManageReports/AdminManageRepo
 import ViewReportAdmin from "./components/ViewReportAdmin";
 import ComingSoon from "./components/ComingSoon";
 import AdminManageNews from "./pages/admin/NewsAndUpdates/AdminManageNews";
+import Archives from "./pages/admin/AdminManageReports/components/ArchivePage/Archives";
+import AdminRecentLog from "./pages/admin/AdminManageReports/components/LogsPage/AdminRecentLog";
 
 
 
@@ -61,15 +64,27 @@ const PrivateRoute = ({ children, role }) => {
 
 
 export default function App() {
+
   const location = useLocation();
-  const isDashboard =
-  location.pathname.startsWith("/dashboard") ||
-  location.pathname.startsWith("/reports");
+
+  const isUserDashboard =
+    location.pathname.startsWith("/dashboard") ||
+    location.pathname.startsWith("/reports");
+
+  
+  const isAdminDashboard =
+    location.pathname.startsWith("/admin");
 
   return (
     <>
-      {/* ✅ Different navbars based on route */}
-      {isDashboard ? <DashboardNavbar /> : <Navbar />}
+      {/* ✅ Choose navbar based on route */}
+      {isUserDashboard ? (
+        <UserNavbar />  // User navbar
+      ) : isAdminDashboard ? (
+        <AdminNavbar />      // Admin navbar
+      ) : (
+        <HomeNavbar />           // Homepage / public navbar
+      )}
 
       <Routes>
         <Route path="/" element={<Home />} />
@@ -215,6 +230,25 @@ export default function App() {
           element={
             <PrivateRoute role="ROLE_ADMIN">
               <AdminManageNews />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/admin/archives"
+          element={
+            <PrivateRoute role="ROLE_ADMIN">
+              <Archives />
+            </PrivateRoute>
+          }
+        />
+
+        
+        <Route
+          path="/admin/activity-log"
+          element={
+            <PrivateRoute role="ROLE_ADMIN">
+              <AdminRecentLog />
             </PrivateRoute>
           }
         />

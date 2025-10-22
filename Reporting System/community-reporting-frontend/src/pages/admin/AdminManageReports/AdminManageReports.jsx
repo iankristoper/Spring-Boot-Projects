@@ -280,51 +280,53 @@ export default function AdminManageReports() {
           />
         )}
 
-        {/* ✅ Bulk Actions Bar (Fixed at bottom of screen) */}
-{selectedReports.length > 0 && (
-  <Box
-    sx={{
-      position: "fixed",
-      bottom: 0,
-      left: 0,
-      right: 0,
-      bgcolor: "#000",
-      borderTop: "1px solid rgba(255,255,0,0.2)",
-      color: "yellow",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "space-between",
-      px: 3,
-      py: 1.5,
-      zIndex: 1300, // keep it above everything
-      boxShadow: "0 -2px 10px rgba(0,0,0,0.5)",
-    }}
-  >
-    <Typography sx={{ fontWeight: "bold" }}>
-      {selectedReports.length} selected
-    </Typography>
+        {/* ✅ Bulk Actions Bar */}
+        {/* ✅ Bulk Actions Bar */}
+        {selectedReports.length > 0 && (
+          <Box
+            sx={{
+              position: "sticky",
+              bottom: 0,
+              bgcolor: "#000",
+              borderTop: "1px solid rgba(255,255,0,0.2)",
+              color: "yellow",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              px: 3,
+              py: 1.5,
+              borderRadius: "0 0 12px 12px",
+              boxShadow: "0 -2px 10px rgba(0,0,0,0.5)",
+              zIndex: 10,
+              width: "100%", // auto, same as parent container width
+              mt: 1,
+            }}
+          >
+            <Typography sx={{ fontWeight: "bold" }}>
+              {selectedReports.length} selected
+            </Typography>
 
-    <Box sx={{ display: "flex", gap: 1 }}>
-      <Tooltip title="Resolve Selected">
-        <IconButton sx={{ color: "green" }} onClick={handleBulkResolve}>
-          <CheckCircleIcon />
-        </IconButton>
-      </Tooltip>
+            <Box sx={{ display: "flex", gap: 1 }}>
+              {/*<Tooltip title="Resolve Selected">
+                <IconButton sx={{ color: "green" }} onClick={handleBulkResolve}>
+                  <CheckCircleIcon />
+                </IconButton>
+              </Tooltip>
+            */}
+              <Tooltip title="Archive Selected">
+                <IconButton sx={{ color: "#ffeb3b" }} onClick={handleBulkArchive}>
+                  <ArchiveIcon />
+                </IconButton>
+              </Tooltip>
 
-      <Tooltip title="Archive Selected">
-        <IconButton sx={{ color: "#ffeb3b" }} onClick={handleBulkArchive}>
-          <ArchiveIcon />
-        </IconButton>
-      </Tooltip>
-
-      <Tooltip title="Delete Selected">
-        <IconButton sx={{ color: "red" }} onClick={handleBulkDelete}>
-          <DeleteIcon />
-        </IconButton>
-      </Tooltip>
-    </Box>
-  </Box>
-)}
+              <Tooltip title="Delete Selected">
+                <IconButton sx={{ color: "red" }} onClick={handleBulkDelete}>
+                  <DeleteIcon />
+                </IconButton>
+              </Tooltip>
+            </Box>
+          </Box>
+        )}
 
 
         {!isMobile && (
@@ -398,7 +400,7 @@ export default function AdminManageReports() {
       {/* ✅ Bulk Actions Snackbar */}
       <Snackbar
         open={!!bulkActionMessage}
-        autoHideDuration={3000}
+        autoHideDuration={5000}
         onClose={() => setBulkActionMessage("")}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >

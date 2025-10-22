@@ -1,10 +1,9 @@
 import React from "react";
 import { Paper, Box, IconButton, Button, Typography } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import ArchiveIcon from "@mui/icons-material/Archive";
-import HistoryIcon from "@mui/icons-material/History"; // 🕓 Added for the log button
+import HistoryIcon from "@mui/icons-material/History";
 
-export default function HeaderBar({ isMobile, navigate }) {
+export default function AdminLogHeader({ isMobile, navigate }) {
   return (
     <Paper
       elevation={3}
@@ -16,6 +15,7 @@ export default function HeaderBar({ isMobile, navigate }) {
         position: "relative",
       }}
     >
+      {/* ---------- Mobile Back Button ---------- */}
       {isMobile && (
         <IconButton
           onClick={() => navigate("/admin/admin-home")}
@@ -41,10 +41,9 @@ export default function HeaderBar({ isMobile, navigate }) {
         flexWrap="wrap"
         gap={1}
       >
-        {/* Left Section */}
+        {/* ---------- Left Buttons (Back + Logs) ---------- */}
         {!isMobile && (
           <Box display="flex" alignItems="center" gap={1.5}>
-            {/* Back Button */}
             <Button
               startIcon={<ArrowBackIcon />}
               variant="outlined"
@@ -59,22 +58,6 @@ export default function HeaderBar({ isMobile, navigate }) {
               Back
             </Button>
 
-            {/* Archive Button */}
-            <Button
-              startIcon={<ArchiveIcon />}
-              variant="outlined"
-              size="medium"
-              sx={{
-                color: "yellow",
-                borderColor: "yellow",
-                "&:hover": { borderColor: "white", color: "white" },
-              }}
-              onClick={() => navigate("/admin/archives")}
-            >
-              Archive
-            </Button>
-
-            {/* 🕓 Activity Log Button */}
             <Button
               startIcon={<HistoryIcon />}
               variant="outlined"
@@ -86,12 +69,12 @@ export default function HeaderBar({ isMobile, navigate }) {
               }}
               onClick={() => navigate("/admin/activity-log")}
             >
-              Activity Log
+              Archive
             </Button>
           </Box>
         )}
 
-        {/* Title */}
+        {/* ---------- Title ---------- */}
         <Typography
           variant={isMobile ? "h6" : "h5"}
           fontWeight="bold"
@@ -102,7 +85,7 @@ export default function HeaderBar({ isMobile, navigate }) {
             letterSpacing: "0.5px",
           }}
         >
-          Manage Reports
+          Admin Activity Logs
         </Typography>
       </Box>
     </Paper>

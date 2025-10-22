@@ -137,10 +137,22 @@ export default function ViewReport() {
         <Typography
           variant="h4"
           fontWeight="bold"
-          sx={{ color: "yellow", mb: 2 }}
+          sx={{
+            color: "yellow",
+            mb: 2,
+            whiteSpace: "normal", // allow line breaks
+            wordWrap: "break-word",
+            overflowWrap: "break-word",
+            display: "-webkit-box",
+            WebkitBoxOrient: "vertical",
+            WebkitLineClamp: 3, // limit to 3 lines (since it's a big header)
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+          }}
         >
-          {report.title}
+          {report.title || "Untitled Report"}
         </Typography>
+
 
         {/* 📊 Meta Information */}
         <Stack

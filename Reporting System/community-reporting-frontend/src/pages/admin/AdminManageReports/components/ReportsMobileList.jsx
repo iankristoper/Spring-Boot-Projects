@@ -58,13 +58,26 @@ export default function ReportsMobileList({
                   onClick={() => toggleExpand(r.id)}
                 >
                   <Box>
-                    <Typography
-                      variant="subtitle1"
-                      fontWeight="bold"
-                      sx={{ color: "white" }}
-                    >
-                      {r.title || "Untitled Report"}
-                    </Typography>
+                    <Tooltip title={r.title || "Untitled Report"}>
+                      <Typography
+                        variant="subtitle1"
+                        fontWeight="bold"
+                        noWrap
+                        sx={{
+                          color: "white",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                          display: "block",
+                          maxWidth: 200, // 👈 set a fixed or reasonable max width
+                          minWidth: 0,
+                        }}
+                      >
+                        {r.title || "Untitled Report"}
+                      </Typography>
+                    </Tooltip>
+
+
                     <Typography
                       variant="body2"
                       sx={{

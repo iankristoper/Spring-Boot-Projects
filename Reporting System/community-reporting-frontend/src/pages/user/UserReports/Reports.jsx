@@ -265,10 +265,22 @@ export default function Reports() {
                       <Typography
                         variant="subtitle1"
                         fontWeight="bold"
-                        sx={{ color: "yellow" }}
+                        sx={{
+                          color: "yellow",
+                          maxWidth: "220px", // control title width to prevent overflow beside the arrow
+                          whiteSpace: "normal", // allow line wrapping
+                          wordWrap: "break-word",
+                          overflowWrap: "break-word",
+                          display: "-webkit-box",
+                          WebkitBoxOrient: "vertical",
+                          WebkitLineClamp: 2, // limit to 2 lines max (adjust as you like)
+                          overflow: "hidden", // hide excess text
+                          textOverflow: "ellipsis", // show "..." if too long
+                        }}
                       >
-                        {report.title}
+                        {report.title || "Untitled Report"}
                       </Typography>
+
                       <Typography
                         variant="body2"
                         sx={{
@@ -414,7 +426,19 @@ export default function Reports() {
                     return 0;
                   }).map((report) => (
                   <TableRow key={report.id}>
-                    <TableCell>{report.title}</TableCell>
+                    <TableCell
+                      sx={{
+                        color: "white",
+                        fontWeight: "bold",
+                        maxWidth: "250px", // limit width to keep table layout clean
+                        whiteSpace: "normal", // allow wrapping
+                        wordWrap: "break-word", // break long words if needed
+                        overflowWrap: "break-word",
+                      }}
+                    >
+                      {report.title || "Untitled Report"}
+                    </TableCell>
+
                     <TableCell>{report.category}</TableCell>
                     <TableCell>{report.status || "Pending"}</TableCell>
                     <TableCell>
