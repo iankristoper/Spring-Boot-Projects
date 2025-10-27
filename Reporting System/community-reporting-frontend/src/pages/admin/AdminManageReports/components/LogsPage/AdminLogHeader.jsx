@@ -18,7 +18,7 @@ export default function AdminLogHeader({ isMobile, navigate }) {
       {/* ---------- Mobile Back Button ---------- */}
       {isMobile && (
         <IconButton
-          onClick={() => navigate("/admin/admin-home")}
+          onClick={() => navigate("/admin/admin-reports")}
           sx={{
             position: "absolute",
             top: 12,
@@ -53,12 +53,12 @@ export default function AdminLogHeader({ isMobile, navigate }) {
                 borderColor: "yellow",
                 "&:hover": { borderColor: "white", color: "white" },
               }}
-              onClick={() => navigate("/admin/admin-home")}
+              onClick={() => navigate("/admin/admin-reports")}
             >
               Back
             </Button>
 
-            <Button
+            {/**             <Button
               startIcon={<HistoryIcon />}
               variant="outlined"
               size="medium"
@@ -70,7 +70,9 @@ export default function AdminLogHeader({ isMobile, navigate }) {
               onClick={() => navigate("/admin/activity-log")}
             >
               Archive
-            </Button>
+            </Button>*/}
+
+
           </Box>
         )}
 

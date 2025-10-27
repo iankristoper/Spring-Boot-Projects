@@ -33,6 +33,9 @@ public class ReportRepository {
     //CRUD OPERATION FOR THE REPORTS
     
     
+    /*
+        This part is for creating the report and passing to the db 
+    */
     public void createReport(Report report) {
         
         String sql = "INSERT INTO reports(title, description, category, priority, location, media, createdAt, user_id) VALUES(?,?,?,?,?,?,?,?)";
@@ -43,6 +46,9 @@ public class ReportRepository {
     
     
     
+    /**
+     * This is for fetching the report per ID 
+    */
     public List<FetchReportDTO> fetchReportsByUserId(int userId) {
         
         String sql = "SELECT id, title, description, category, status, createdAt FROM reports WHERE user_id =? ORDER BY createdAt DESC";
@@ -67,6 +73,9 @@ public class ReportRepository {
     
     
     
+    /**
+     * fetching each report 
+     */
     public FetchReportDTO fetchPerReport(int reportId) {
         String sql = "SELECT id, title, description, category, status, createdAt, priority, location, media FROM reports WHERE id = ?";
         
@@ -90,7 +99,9 @@ public class ReportRepository {
     
     
     
-    
+    /**
+     * fetching all reports in one go
+     */
     public List<FetchReportDTO> fetchAll() {
         
         String sql = "SELECT * FROM reports";
@@ -116,7 +127,9 @@ public class ReportRepository {
     
     
     
-    
+    /**
+     * Updating records of reports 
+     */
     public void udpateReport(FetchReportDTO reportUpdate, int reportId) {
         
         // Start building the SQL query
@@ -172,6 +185,10 @@ public class ReportRepository {
     }
     
     
+    
+    /**
+     * Deleting reports by id
+     */
     public boolean deleteReportById(int id) {
         
         String sql = "DELETE FROM reports WHERE id = ?";
@@ -181,4 +198,18 @@ public class ReportRepository {
         return rowsAffected > 0;
     }
     
+    
+    
+    /**
+     * Archiving reports by changing the value from zero to one
+     */
+    public boolean archiveReportById(int id) {
+        
+        String sql = "UPDATE reports SET is_archive = 1 WHERE id = ?";
+        
+        int rowsAffected = jdbc.update(sql, id);
+        
+        return rowsAffected > 0;
+        
+    }    
 }

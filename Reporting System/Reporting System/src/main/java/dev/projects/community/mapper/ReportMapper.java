@@ -31,6 +31,11 @@ public class ReportMapper {
     }
     
     
+    
+    /**
+     * this is for report create
+     * convert the dto to the model and pass to the repository 
+     */
     public Report reportMapperToCreate(ReportDTO reportDTO, int userId) {
         
         Report report = new Report();
@@ -51,6 +56,11 @@ public class ReportMapper {
     }
     
     
+    
+    
+    /**
+     * convert 
+     */
     public List<FetchReportDTO> reportMapperToFetch(int userId) {
         
         // fetch raw reports

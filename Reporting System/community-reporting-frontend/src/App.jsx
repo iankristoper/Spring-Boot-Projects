@@ -24,7 +24,7 @@ import ComingSoon from "./components/ComingSoon";
 import AdminManageNews from "./pages/admin/NewsAndUpdates/AdminManageNews";
 import Archives from "./pages/admin/AdminManageReports/components/ArchivePage/Archives";
 import AdminRecentLog from "./pages/admin/AdminManageReports/components/LogsPage/AdminRecentLog";
-
+import HomeComingSoon from "./components/HomeComingSoon";
 
 
 
@@ -226,7 +226,7 @@ export default function App() {
 
 
         <Route
-          path="/admin/news"
+          path="/admin/manage-news"
           element={
             <PrivateRoute role="ROLE_ADMIN">
               <AdminManageNews />
@@ -249,6 +249,54 @@ export default function App() {
           element={
             <PrivateRoute role="ROLE_ADMIN">
               <AdminRecentLog />
+            </PrivateRoute>
+          }
+        />
+
+           
+        <Route
+          path="/admin/admin-reports"
+          element={
+            <PrivateRoute role="ROLE_ADMIN">
+              <AdminManageReports />
+            </PrivateRoute>
+          }
+        />
+
+
+        <Route
+          path="/admin/manage-users"
+          element={
+            <PrivateRoute role="ROLE_ADMIN">
+              <HomeComingSoon />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/admin/manage-dashboard"
+          element={
+            <PrivateRoute role="ROLE_ADMIN">
+              <HomeComingSoon />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/admin/manage-messages"
+          element={
+            <PrivateRoute role="ROLE_ADMIN">
+              <HomeComingSoon />
+            </PrivateRoute>
+          }
+        />
+
+
+        <Route
+          path="/admin/manage-settings"
+          element={
+            <PrivateRoute role="ROLE_ADMIN">
+              <HomeComingSoon />
             </PrivateRoute>
           }
         />
